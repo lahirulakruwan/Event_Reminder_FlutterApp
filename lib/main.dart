@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Event Reminder",
-      home: AddEventScreen(),
+      home: EventListScreen(),
     );
   }
 }

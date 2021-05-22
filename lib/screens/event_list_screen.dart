@@ -13,10 +13,89 @@ class _EventListScreenState extends State<EventListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Event List Screen'),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {}
+          ),
+        ],
       ),
-      body: Center(
-        child: Text('Event List Screen'),
+      body: Container(
+        child: ListView(
+          scrollDirection: Axis.vertical,
+          children: [
+            ListTile(
+              leading: Icon(Icons.watch_later_rounded),
+              title: Text('Event name'),
+              subtitle: Text('Event description'),
+              trailing: Icon(Icons.more_vert),
+              onTap: () {},
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.watch_later_rounded),
+              title: Text('Event name'),
+              subtitle: Text('Event description'),
+              trailing: Icon(Icons.more_vert),
+              onTap: () {},
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.watch_later_rounded),
+              title: Text('Event name'),
+              subtitle: Text('Event description'),
+              trailing: Icon(Icons.more_vert),
+              onTap: () {},
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.watch_later_rounded),
+              title: Text('Event name'),
+              subtitle: Text('Event description'),
+              trailing: Icon(Icons.more_vert),
+              onTap: () {},
+            ),
+            Divider(),
+          ],
+        ),
       ),
+      drawer: Drawer(
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text('Drawer Header'),
+            ),
+            ListTile(
+              title: Text('Item 1'),
+              onTap: () {
+                // Update the state of the app.
+                // ...
+              },
+            ),
+            ListTile(
+              title: Text('Item 2'),
+              onTap: () {
+                // Update the state of the app.
+                // ...
+              },
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.lightBlue,
+        shape: const CircularNotchedRectangle(),
+        child: Container(height: 50.0),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
