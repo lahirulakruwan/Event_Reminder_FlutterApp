@@ -1,8 +1,11 @@
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:developer';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'add_event_screen.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({Key key}) : super(key: key);
@@ -291,7 +294,16 @@ class _EventListScreenState extends State<EventListScreen> {
           width: 70.0,
           child: FittedBox(
             child: FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context){
+                      return Dialog(child: AddEventPage(),shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12))
+                      ));
+                    });
+              },
               child: Icon(Icons.add, size: 30.0,),
               backgroundColor: Colors.blueAccent,
             ),
@@ -299,6 +311,7 @@ class _EventListScreenState extends State<EventListScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
