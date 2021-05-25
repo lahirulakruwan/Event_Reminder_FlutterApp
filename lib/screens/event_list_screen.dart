@@ -1,4 +1,7 @@
+
 import 'package:flutter/material.dart';
+
+import 'add_event_screen.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({Key key}) : super(key: key);
@@ -93,6 +96,16 @@ class _EventListScreenState extends State<EventListScreen> {
         child: Container(height: 50.0),
       ),
       floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (BuildContext context){
+              return Dialog(child: AddEventPage(),shape: RoundedRectangleBorder(
+                 borderRadius: BorderRadius.all(Radius.circular(12))
+              ));
+          });
+        },
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
