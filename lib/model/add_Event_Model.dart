@@ -22,4 +22,14 @@ class AddEvent{
    return map;
   }
 
+  AddEvent.fromMap(Map<String, dynamic> map) {
+    id = map['id'];
+    eventName = map['eventName'];
+    eventDescription = map['eventDescription'];
+    eventDate = map['eventDate'];
+    eventTime = map['eventTime'];
+    eventType = map['eventType'];
+    priority = map['priority'];
+  }
+
 }
