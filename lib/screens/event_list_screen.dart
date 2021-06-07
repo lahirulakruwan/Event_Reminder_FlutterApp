@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'add_event_screen.dart';
 
 class EventListScreen extends StatefulWidget {
+
   const EventListScreen({Key key}) : super(key: key);
 
   @override

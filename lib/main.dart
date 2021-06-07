@@ -1,5 +1,6 @@
 
 import 'package:event_reminder/screens/event_list_screen.dart';
+import 'package:event_reminder/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
