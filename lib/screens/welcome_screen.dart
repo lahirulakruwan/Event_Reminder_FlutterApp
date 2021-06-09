@@ -29,9 +29,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: FlutterLogo(
-          size: 400,
-        ),
+        child: Container(width: 350.0, child: Center(child: Image(image: AssetImage('assets/happy.png',),))),
       ),
     );
   }
