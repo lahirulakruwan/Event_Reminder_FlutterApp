@@ -11,6 +11,7 @@ import 'package:condition/condition.dart';
 import 'add_event_screen.dart';
 
 class EventListScreen extends StatefulWidget {
+
   const EventListScreen({Key key}) : super(key: key);
 
   @override

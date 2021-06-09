@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:event_reminder/model/add_Event_Model.dart';
 import 'dart:async';
 
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'event_list_screen.dart';
+
 class AddEventPage extends StatefulWidget {
 
 
@@ -91,7 +95,20 @@ class _AddEventPageState extends State<AddEventPage> {
  clearName(){
     controller.text = '';
  }
-  validate(){
+
+ void toastMessage(){
+    print('patta');
+   Fluttertoast.showToast(
+       msg: 'Event Inserted Successfully',
+       toastLength: Toast.LENGTH_SHORT,
+       gravity: ToastGravity.BOTTOM,
+       backgroundColor: Colors.lightBlue,
+       textColor: Colors.white
+   );
+
+ }
+
+  void validate(){
 
     if(_formKey.currentState.validate()){
       _formKey.currentState.save();
@@ -103,6 +120,7 @@ class _AddEventPageState extends State<AddEventPage> {
         print(priorityVal);
         AddEvent  _addevent = AddEvent(null,eventName, eventDescription, _selectedDate , _selectedTime, eventVal,priorityVal);
         dbHelper.save(_addevent);
+        toastMessage();
         clearName();
 
     }
@@ -158,16 +176,19 @@ class _AddEventPageState extends State<AddEventPage> {
             _dateTimePicker(Icons.access_time,_pickTime,_selectedTime),
             SizedBox(height: 30,),
             Column(
-
               children: <Widget>[
-                       Text(
+                Align(
+                    alignment: Alignment.centerLeft,
+                     child:  Text(
                            'Select Task Type:',
                            style:TextStyle(fontSize: 16.0,fontWeight: FontWeight.bold),
-                           textAlign:TextAlign.start ),
+                           textAlign:TextAlign.start )),
                 SizedBox(height: 10,),
-                DropdownButton<Event>(
-                  items: Events.map((Event event) {
-                    return  DropdownMenuItem<Event>(
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child:DropdownButton<Event>(
+                     items: Events.map((Event event) {
+                       return  DropdownMenuItem<Event>(
                       value: event,
                       child: Row(
                         children: <Widget>[
@@ -188,14 +209,16 @@ class _AddEventPageState extends State<AddEventPage> {
                     });
                   },
                   value:  defaultEventVal ,
-                ),
+                )),
                 SizedBox(height: 30,),
-                Text(
+                Align(alignment: Alignment.centerLeft,
+                 child: Text(
                     'Select Priority:',
                     style:TextStyle(fontSize: 16.0,fontWeight: FontWeight.bold),
-                    textAlign:TextAlign.start ),
+                    textAlign:TextAlign.start )),
                 SizedBox(height: 10,),
-                DropdownButton<Priority>(
+                Align(alignment: Alignment.centerLeft,
+                child : DropdownButton<Priority>(
                   items: priorities.map((Priority priority) {
                     return  DropdownMenuItem<Priority>(
                       value: priority,
@@ -218,21 +241,30 @@ class _AddEventPageState extends State<AddEventPage> {
                     });
                   },
                   value:  defaultPriorityVal ,
-                ),
-              ],
+                )),
+               ],
             ),
+            SizedBox(height: 30,),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
+            FlatButton(
+              color: Colors.red,
+              child: Text('CANCEL'),
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EventListScreen() ),
+                );
+              },
+            ),
             FlatButton(
                 color: Colors.lightBlue,
                 onPressed: validate,
                 child: Text('ADD'),
             ),
-            FlatButton(
-              color: Colors.lightBlue,
-              child: Text('CANCEL'),
-            ),
+
           ],
         ),
           ],
