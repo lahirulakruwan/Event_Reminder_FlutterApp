@@ -9,6 +9,8 @@ class AddEvent{
 
   AddEvent(this.id,this.eventName,this.eventDescription,this.eventDate,this.eventTime,this.eventType,this.priority);
 
+
+
   Map<String,dynamic> toMap(){
     var map = <String,dynamic>{
       'id' : id,

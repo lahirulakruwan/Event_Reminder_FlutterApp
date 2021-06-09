@@ -1,3 +1,5 @@
+
+import 'package:event_reminder/screens/updateEventScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -7,6 +9,7 @@ import 'dart:async';
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:condition/condition.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'add_event_screen.dart';
 
@@ -65,6 +68,24 @@ class _EventListScreenState extends State<EventListScreen> {
   String _formatDateTime() {
     DateTime now = DateTime.now();
     return DateFormat('kk:mm:ss \nEEE, d MMM yyyy').format(now);
+  }
+
+  deleteEvent(int id){
+
+    AddEvent  delete = AddEvent(id,null, null, null , null, null,null);
+
+    var type = dbHelper.deleteEvent(delete);
+    // if(type==true){
+    //
+    // Fluttertoast.showToast(msg: "Successfully Deleted ! ");
+     refreshList();
+    //
+    // }else{
+    // Fluttertoast.showToast(msg: "Unsucessfully Deleted ! ");
+    //
+    // }
+
+
   }
 
   @override
@@ -295,18 +316,78 @@ class _EventListScreenState extends State<EventListScreen> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                GestureDetector(
+                                PopupMenuButton(
+
+                                  onSelected: (value) {
+                                    if (value == 0) {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Dialog(
+
+                                                child: updateEvent(id:eventList[index].id, name:eventList[index].eventName, description:eventList[index].eventDescription,date:eventList[index].eventDate,time:eventList[index].eventTime,priority:eventList[index].priority,type:eventList[index].eventType),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                    BorderRadius.all(Radius.circular(12))));
+                                          });
+                                    }else{
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text("Do You want to Delete this Event ?"),
+                                              content: Text("If You Delete this Event You cannot get it back !"),
+                                              actions: [
+                                                FlatButton(
+                                                  child: Text("No"),
+                                                  onPressed: ()=>Navigator.pop(context),
+                                                ),
+                                                FlatButton(
+
+                                                  child: Text("Yes"),
+                                                  onPressed: deleteEvent(eventList[index].id),
+                                                  color: Colors.red,
+                                                )
+                                              ],
+                                            );
+                                          });
+                                    }
+                                  },
+                                  itemBuilder: (context)=>[
+
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.update,color: Colors.blue,),
+                                            Text("Update Event")
+                                          ],
+                                        ),
+                                      value: 0,
+                                    ),
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.delete,
+                                                color: Colors.red,),
+                                            Text("Delete Event"),
+
+                                          ],
+
+                                        ),
+                                      value: 1,
+                                    )
+                                  ],
                                   child: Icon(
                                     Icons.more_vert,
                                     color: Colors.red,
                                   ),
-                                  onTap: () {
-                                    // _delete(context, todoList[position]);
-                                  },
                                 ),
                               ],
                             ),
                             onTap: () {
+
                               // debugPrint("ListTile Tapped");
                               // navigateToDetail(this.todoList[position], 'Edit Todo');
                             },
@@ -448,7 +529,7 @@ class _EventListScreenState extends State<EventListScreen> {
                           child: AddEventPage(),
                           shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(12))));
+                              BorderRadius.all(Radius.circular(12))));
                     });
               },
               child: Icon(
