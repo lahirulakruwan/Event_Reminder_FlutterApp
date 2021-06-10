@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as flutter_notification;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:developer';
@@ -10,7 +12,9 @@ import 'package:condition/condition.dart';
 
 import 'add_event_screen.dart';
 
+
 class EventListScreen extends StatefulWidget {
+
 
   const EventListScreen({Key key}) : super(key: key);
 
@@ -19,6 +23,8 @@ class EventListScreen extends StatefulWidget {
 }
 
 class _EventListScreenState extends State<EventListScreen> {
+
+  flutter_notification.FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new flutter_notification.FlutterLocalNotificationsPlugin();
   String timeString;
   final formKey = new GlobalKey<FormState>();
   var dbHelper = DBHelper();
@@ -26,11 +32,12 @@ class _EventListScreenState extends State<EventListScreen> {
   int count = 0;
 
   @override
-  void initState() {
+  Future<void> initState(){
     super.initState();
     dbHelper = DBHelper();
     refreshList();
   }
+
 
   void updateListView() {
     final Future<Database> dbFuture = dbHelper.initDb();
@@ -51,6 +58,23 @@ class _EventListScreenState extends State<EventListScreen> {
   refreshList() {
     setState(() {
       events = dbHelper.getEvents();
+
+      // for(int i=0;i<this.count;i++)
+      // {
+      //
+      //
+      //     var now = new DateTime.now();
+      //     var formatter = new DateFormat('yyyy-MM-dd');
+      //     String formattedDate = formatter.format(now);
+      //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
+      //     print("hurrrrrrrrreeeeeeee");
+      //     print(formattedDate);
+      //     print(eventDate);
+      //
+      //     if(eventDate.compareTo(formattedDate) == true){
+      //
+      //     }
+      //   }
       print("events");
       print(events);
     });
@@ -61,6 +85,23 @@ class _EventListScreenState extends State<EventListScreen> {
     setState(() {
       timeString = formattedDateTime;
     });
+    // for(int i=0;i<this.count;i++)
+    // {
+    //
+    //
+    //     var now = new DateTime.now();
+    //     var formatter = new DateFormat('yyyy-MM-dd');
+    //     String formattedDate = formatter.format(now);
+    //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
+    //     print("hurrrrrrrrreeeeeeee");
+    //     print(formattedDate);
+    //     print(eventDate);
+    //
+    //     if(eventDate.compareTo(formattedDate) == true){
+    //
+    //     }
+    //   }
+
   }
 
   String _formatDateTime() {
@@ -71,6 +112,7 @@ class _EventListScreenState extends State<EventListScreen> {
   @override
   Widget build(BuildContext context) {
     timeString = _formatDateTime();
+
     Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
 
     if (eventList == null) {
@@ -465,4 +507,29 @@ class _EventListScreenState extends State<EventListScreen> {
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
+  void scheduleAlarm() async {
+
+    var  scheduledNotificationDateTime = DateTime.now().add(Duration(seconds: 10));
+
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'alarm_notif',
+      'alarm_notif',
+      'Channel for Alarm notification',
+      icon: 'bell',
+      sound: RawResourceAndroidNotificationSound('a_long_cold_sting'),
+      largeIcon: DrawableResourceAndroidBitmap('bell'),
+    );
+
+    var iOSPlatformChannelSpecifics = IOSNotificationDetails(
+        sound: 'a_long_cold_sting.wav',
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true);
+    var platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.schedule(0, 'Office','Hi',
+        scheduledNotificationDateTime, platformChannelSpecifics);
+  }
+
 }

@@ -5,6 +5,7 @@ import 'package:event_reminder/model/add_Event_Model.dart';
 import 'dart:async';
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 import 'event_list_screen.dart';
 
@@ -58,6 +59,7 @@ class _AddEventPageState extends State<AddEventPage> {
     dbHelper = DBHelper();
   }
 
+
   String _selectedDate = 'Pick date';
   String _selectedTime = 'Pick Time';
 
@@ -87,17 +89,16 @@ class _AddEventPageState extends State<AddEventPage> {
       initialTime: new TimeOfDay.now());
   if(timepck!=null){
     setState(() {
-      _selectedTime = timepck.toString();
+      _selectedTime = timepck.format(context).toString();
     });
   }
  }
 
  clearName(){
-    controller.text = '';
+    controller.clear();
  }
 
  void toastMessage(){
-    print('patta');
    Fluttertoast.showToast(
        msg: 'Event Inserted Successfully',
        toastLength: Toast.LENGTH_SHORT,
@@ -118,7 +119,9 @@ class _AddEventPageState extends State<AddEventPage> {
         print( _selectedTime);
         print(eventVal);
         print(priorityVal);
-        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, _selectedDate , _selectedTime, eventVal,priorityVal);
+        var formatter = new DateFormat('yyyy-MM-dd');
+        String formattedDate = formatter.format(DateTime.parse(_selectedDate));
+        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, formattedDate , _selectedTime, eventVal,priorityVal);
         dbHelper.save(_addevent);
         toastMessage();
         clearName();
@@ -177,16 +180,11 @@ class _AddEventPageState extends State<AddEventPage> {
             SizedBox(height: 30,),
             Column(
               children: <Widget>[
-                Align(
-                    alignment: Alignment.centerLeft,
-                     child:  Text(
-                           'Select Task Type:',
+                Text(  'Select Task Type:',
                            style:TextStyle(fontSize: 16.0,fontWeight: FontWeight.bold),
-                           textAlign:TextAlign.start )),
+                           textAlign:TextAlign.start ),
                 SizedBox(height: 10,),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child:DropdownButton<Event>(
+               DropdownButton<Event>(
                      items: Events.map((Event event) {
                        return  DropdownMenuItem<Event>(
                       value: event,
@@ -209,16 +207,14 @@ class _AddEventPageState extends State<AddEventPage> {
                     });
                   },
                   value:  defaultEventVal ,
-                )),
+                ),
                 SizedBox(height: 30,),
-                Align(alignment: Alignment.centerLeft,
-                 child: Text(
+                Text(
                     'Select Priority:',
                     style:TextStyle(fontSize: 16.0,fontWeight: FontWeight.bold),
-                    textAlign:TextAlign.start )),
+                    textAlign:TextAlign.start ),
                 SizedBox(height: 10,),
-                Align(alignment: Alignment.centerLeft,
-                child : DropdownButton<Priority>(
+                DropdownButton<Priority>(
                   items: priorities.map((Priority priority) {
                     return  DropdownMenuItem<Priority>(
                       value: priority,
@@ -241,7 +237,7 @@ class _AddEventPageState extends State<AddEventPage> {
                     });
                   },
                   value:  defaultPriorityVal ,
-                )),
+                ),
                ],
             ),
             SizedBox(height: 30,),
