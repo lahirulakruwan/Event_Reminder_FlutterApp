@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -60,6 +61,45 @@ class DBHelper {
         events.add(AddEvent.fromMap(maps[i]));
       }
     }
+    events.forEach((x) { print(x.eventDate);});
+    return events;
+  }
+
+  Future<List<AddEvent>> getEventsUpComingList() async {
+    var dbClient = await db;
+    List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE ");
+    List<AddEvent> events = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        events.add(AddEvent.fromMap(maps[i]));
+      }
+    }
+    return events;
+  }
+
+  Future<List<AddEvent>> getEventsByDate(String eventType) async {
+    var dbClient = await db;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+
+    List<Map> maps;
+    if(eventType =="tomorrow"){
+      maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$tomorrow' AND '$tomorrow'");
+    }else if(eventType =="upcoming"){
+      maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$today' AND '2030-06-10 00:00:00.000'");
+    }else if(eventType =="overdue"){
+      maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '2000-06-10 00:00:00.000' AND '$yesterday'");
+    }
+
+    List<AddEvent> events = [];
+    if (maps.length > 0) {
+      for (int i = 0; i < maps.length; i++) {
+        events.add(AddEvent.fromMap(maps[i]));
+      }
+    }
+
     return events;
   }
 }
