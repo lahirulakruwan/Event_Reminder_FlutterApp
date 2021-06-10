@@ -34,6 +34,7 @@ dependencies:
   path_provider: ^2.0.0
   condition: ^0.0.8
   fluttertoast: ^8.0.7
+  flutter_local_notifications: ^5.0.0+4
 
 dev_dependencies:
   flutter_test:
