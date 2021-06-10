@@ -1,3 +1,4 @@
+import 'package:event_reminder/screens/EventListFilter/filtered_event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -6,8 +7,6 @@ import 'package:event_reminder/model/add_Event_Model.dart';
 import 'dart:async';
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:condition/condition.dart';
-
 import 'add_event_screen.dart';
 
 class EventListScreen extends StatefulWidget {
@@ -349,7 +348,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("overdue")));},
                 title: Text(
                   'Overdue Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -373,7 +372,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("tomorrow")));},
                 title: Text(
                   'Tomorrow Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -396,7 +395,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("upcoming")));},
                 title: Text(
                   'Upcoming Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
