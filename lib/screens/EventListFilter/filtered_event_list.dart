@@ -244,15 +244,7 @@ class _UpComingEventListState extends State<UpComingEventList> {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                              GestureDetector(
-                                child: Icon(
-                                  Icons.more_vert,
-                                  color: Colors.red,
-                                ),
-                                onTap: () {
-                                  // _delete(context, todoList[position]);
-                                },
-                              ),
+
                             ],
                           ),
                           onTap: () {
