@@ -26,6 +26,7 @@ class _EventListScreenState extends State<EventListScreen> {
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
   int count = 0;
+  Timer _timer;
 
   @override
   void initState() {
@@ -75,6 +76,7 @@ class _EventListScreenState extends State<EventListScreen> {
     AddEvent  delete = AddEvent(id,null, null, null , null, null,null);
 
     var type = dbHelper.deleteEvent(delete);
+
     // if(type==true){
     //
     // Fluttertoast.showToast(msg: "Successfully Deleted ! ");
@@ -333,7 +335,11 @@ class _EventListScreenState extends State<EventListScreen> {
                                     }else{
                                       showDialog(
                                           context: context,
+
                                           builder: (BuildContext context) {
+                                            _timer = Timer(Duration(seconds: 5),(){
+                                              Navigator.of(context).pop();
+                                            });
                                             return AlertDialog(
                                               title: Text("Do You want to Delete this Event ?"),
                                               content: Text("If You Delete this Event You cannot get it back !"),
@@ -343,7 +349,6 @@ class _EventListScreenState extends State<EventListScreen> {
                                                   onPressed: ()=>Navigator.pop(context),
                                                 ),
                                                 FlatButton(
-
                                                   child: Text("Yes"),
                                                   onPressed: deleteEvent(eventList[index].id),
                                                   color: Colors.red,
