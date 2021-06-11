@@ -2,12 +2,18 @@
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:event_reminder/model/add_Event_Model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
+
+import 'package:sqflite/sqflite.dart';
+
+import 'event_list_screen.dart';
 
 class updateEvent extends StatefulWidget {
 //
 final String name, description, date,time,priority,type;
  final int id;
+
 //
    updateEvent({Key key, this.id,this.name,this.description,this.date,this.time,this.priority,this.type}): super (key:key);
   //
@@ -30,6 +36,7 @@ final String name, description, date,time,priority,type;
 }
 
 
+
 class Event{
   const Event(this.name,this.icon);
   final String name;
@@ -46,7 +53,8 @@ class Priority{
 
 
 class _UpdateEventPageState extends State<updateEvent> {
-
+  List<AddEvent> eventList;
+  int count = 0;
   // String name, description, date,time,pryory,type;
   // int id;
   //
@@ -68,6 +76,20 @@ class _UpdateEventPageState extends State<updateEvent> {
   //
   //
   // }
+
+  void updateListView() {
+    final Future<Database> dbFuture = dbHelper.initDb();
+    dbFuture.then((database) {
+      Future<List<AddEvent>> eventList = dbHelper.getEvents();
+      eventList.then((eventList) {
+        setState(() {
+          this.eventList = eventList;
+          print(this.eventList);
+          this.count = eventList.length;
+        });
+      });
+    });
+  }
 
   TextEditingController controller = TextEditingController();
   final  _formKey  =  GlobalKey<FormState>();
@@ -159,9 +181,23 @@ class _UpdateEventPageState extends State<updateEvent> {
       print(priorityVal);
       AddEvent  _addevent = AddEvent(widget.id,eventName, eventDescription, _selectedDate , _selectedTime, eventVal,priorityVal);
       dbHelper.Update(_addevent);
+      toastMessage();
       clearName();
 
+
+
     }
+
+  }
+  void toastMessage(){
+
+    Fluttertoast.showToast(
+        msg: 'Event Update Successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.lightBlue,
+        textColor: Colors.white
+    );
 
   }
 
@@ -306,7 +342,13 @@ class _UpdateEventPageState extends State<updateEvent> {
                     FlatButton(
                       color: Colors.lightBlue,
                       child: Text('CANCEL'),
-                      onPressed: ()=>Navigator.pop(context),
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EventListScreen() ),
+                        );
+                      },
 
                     ),
                   ],
