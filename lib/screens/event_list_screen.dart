@@ -13,6 +13,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:condition/condition.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'EventListFilter/filtered_event_list.dart';
 import 'add_event_screen.dart';
 
 
@@ -36,6 +37,7 @@ class _EventListScreenState extends State<EventListScreen> {
   int upcomingEventsCount = 0;
   int overdueEventsCount = 0;
   int tomorrowEventsCount = 0;
+  Timer _timer;
   @override
   Future<void> initState(){
     super.initState();
@@ -374,7 +376,6 @@ class _EventListScreenState extends State<EventListScreen> {
                                     }else{
                                       showDialog(
                                           context: context,
-
                                           builder: (BuildContext context) {
                                             _timer = Timer(Duration(seconds: 5),(){
                                               Navigator.of(context).pop();
