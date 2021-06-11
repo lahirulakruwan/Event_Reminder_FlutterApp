@@ -117,10 +117,14 @@ class _EventListScreenState extends State<EventListScreen> {
 
     var type = dbHelper.deleteEvent(delete);
 
+    return type;
+
+    // return Navigator.of(context).push(MaterialPageRoute(builder: (context)=>EventListScreen()));
+    //
+
     // if(type==true){
     //
     // Fluttertoast.showToast(msg: "Successfully Deleted ! ");
-     refreshList();
     //
     // }else{
     // Fluttertoast.showToast(msg: "Unsucessfully Deleted ! ");
@@ -130,10 +134,46 @@ class _EventListScreenState extends State<EventListScreen> {
 
   }
 
+  void toastMessageForDelete(int deleteItemID) {
+    deleteEvent(deleteItemID);
+
+    Fluttertoast.showToast(
+        msg: 'Event Deleted Successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.lightBlue,
+        textColor: Colors.white
+    );
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Event Deleted !!"),
+          content: new Text("You Cannot Get Gack Deleted Event "),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EventListScreen() ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     timeString = _formatDateTime();
-    Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
+    // Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
 
     if (eventList == null) {
       eventList = List<AddEvent>();
@@ -362,7 +402,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                 PopupMenuButton(
 
                                   onSelected: (value) {
-                                    if (value == 0) {
+                                    if (value == 1) {
                                       showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
@@ -374,28 +414,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                                     BorderRadius.all(Radius.circular(12))));
                                           });
                                     }else{
-                                      showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            _timer = Timer(Duration(seconds: 5),(){
-                                              Navigator.of(context).pop();
-                                            });
-                                            return AlertDialog(
-                                              title: Text("Do You want to Delete this Event ?"),
-                                              content: Text("If You Delete this Event You cannot get it back !"),
-                                              actions: [
-                                                FlatButton(
-                                                  child: Text("No"),
-                                                  onPressed: ()=>Navigator.pop(context),
-                                                ),
-                                                FlatButton(
-                                                  child: Text("Yes"),
-                                                  onPressed: deleteEvent(eventList[index].id),
-                                                  color: Colors.red,
-                                                )
-                                              ],
-                                            );
-                                          });
+                                      toastMessageForDelete(eventList[index].id);
                                     }
                                   },
                                   itemBuilder: (context)=>[
@@ -408,7 +427,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                             Text("Update Event")
                                           ],
                                         ),
-                                      value: 0,
+                                      value: 1,
                                     ),
                                     PopupMenuItem(
                                         child: Row(
@@ -418,10 +437,16 @@ class _EventListScreenState extends State<EventListScreen> {
                                                 color: Colors.red,),
                                             Text("Delete Event"),
 
+
+
+
                                           ],
 
+
+
                                         ),
-                                      value: 1,
+
+                                      value: 0,
                                     )
                                   ],
                                   child: Icon(
@@ -431,10 +456,6 @@ class _EventListScreenState extends State<EventListScreen> {
                                 ),
                               ],
                             ),
-                            onTap: () {
-                              // debugPrint("ListTile Tapped");
-                              // navigateToDetail(this.todoList[position], 'Edit Todo');
-                            },
                           ),
                         );
                       },
