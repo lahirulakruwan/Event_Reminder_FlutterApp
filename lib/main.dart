@@ -10,22 +10,22 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  var initializationSettingsAndroid =
-  flutter_notification.AndroidInitializationSettings('bell');
-  var initializationSettingsIOS = flutter_notification.IOSInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      onDidReceiveLocalNotification:
-          (int id, String title, String body, String payload) async {});
-  var initializationSettings = flutter_notification.InitializationSettings(
-      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-      onSelectNotification: (String payload) async {
-        if (payload != null) {
-          debugPrint('notification payload: ' + payload);
-        }
-      });
+//  var initializationSettingsAndroid =
+//  flutter_notification.AndroidInitializationSettings('bell');
+//  var initializationSettingsIOS = flutter_notification.IOSInitializationSettings(
+//      requestAlertPermission: true,
+//      requestBadgePermission: true,
+//      requestSoundPermission: true,
+//      onDidReceiveLocalNotification:
+//          (int id, String title, String body, String payload) async {});
+//  var initializationSettings = flutter_notification.InitializationSettings(
+//      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+//  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+//      onSelectNotification: (String payload) async {
+//        if (payload != null) {
+//          debugPrint('notification payload: ' + payload);
+//        }
+//      });
 
 
 
