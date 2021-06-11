@@ -1,6 +1,8 @@
 
 import 'package:event_reminder/screens/updateEventScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as flutter_notification;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:developer';
@@ -13,7 +15,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'add_event_screen.dart';
 
+
 class EventListScreen extends StatefulWidget {
+
+
   const EventListScreen({Key key}) : super(key: key);
 
   @override
@@ -21,19 +26,36 @@ class EventListScreen extends StatefulWidget {
 }
 
 class _EventListScreenState extends State<EventListScreen> {
+
+  flutter_notification.FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new flutter_notification.FlutterLocalNotificationsPlugin();
   String timeString;
   final formKey = new GlobalKey<FormState>();
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
   int count = 0;
-  Timer _timer;
-
+  int upcomingEventsCount = 0;
+  int overdueEventsCount = 0;
+  int tomorrowEventsCount = 0;
   @override
-  void initState() {
+  Future<void> initState(){
     super.initState();
     dbHelper = DBHelper();
     refreshList();
+    getView();
   }
+
+  favouriteEventList(){
+  }
+
+  Future<int> getView() async{
+    int upCount = await dbHelper.getUpcomingEventCount();
+    int ovCount = await dbHelper.getOverdueEventCount();
+    int toCount = await dbHelper.getTomorrowEventCount();
+    upcomingEventsCount = upCount;
+    overdueEventsCount = ovCount;
+    tomorrowEventsCount = toCount;
+  }
+
 
   void updateListView() {
     final Future<Database> dbFuture = dbHelper.initDb();
@@ -50,10 +72,26 @@ class _EventListScreenState extends State<EventListScreen> {
   }
 
   Future<List<AddEvent>> events;
-
+  Future<int> upcomingEventCount;
   refreshList() {
     setState(() {
       events = dbHelper.getEvents();
+      // for(int i=0;i<this.count;i++)
+      // {
+      //
+      //
+      //     var now = new DateTime.now();
+      //     var formatter = new DateFormat('yyyy-MM-dd');
+      //     String formattedDate = formatter.format(now);
+      //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
+      //     print("hurrrrrrrrreeeeeeee");
+      //     print(formattedDate);
+      //     print(eventDate);
+      //
+      //     if(eventDate.compareTo(formattedDate) == true){
+      //
+      //     }
+      //   }
       print("events");
       print(events);
     });
@@ -101,6 +139,7 @@ class _EventListScreenState extends State<EventListScreen> {
     }
 
     List<int> text = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    Set<String> savedWords = Set<String>();
 
     return DefaultTabController(
       length: 2,
@@ -392,7 +431,6 @@ class _EventListScreenState extends State<EventListScreen> {
                               ],
                             ),
                             onTap: () {
-
                               // debugPrint("ListTile Tapped");
                               // navigateToDetail(this.todoList[position], 'Edit Todo');
                             },
@@ -435,7 +473,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("overdue")));},
                 title: Text(
                   'Overdue Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -450,7 +488,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$overdueEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -459,7 +497,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("tomorrow")));},
                 title: Text(
                   'Tomorrow Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -473,7 +511,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$tomorrowEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -482,7 +520,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("upcoming")));},
                 title: Text(
                   'Upcoming Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -496,7 +534,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$upcomingEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -550,4 +588,29 @@ class _EventListScreenState extends State<EventListScreen> {
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
+  void scheduleAlarm() async {
+
+    var  scheduledNotificationDateTime = DateTime.now().add(Duration(seconds: 10));
+
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'alarm_notif',
+      'alarm_notif',
+      'Channel for Alarm notification',
+      icon: 'bell',
+      sound: RawResourceAndroidNotificationSound('a_long_cold_sting'),
+      largeIcon: DrawableResourceAndroidBitmap('bell'),
+    );
+
+    var iOSPlatformChannelSpecifics = IOSNotificationDetails(
+        sound: 'a_long_cold_sting.wav',
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true);
+    var platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.schedule(0, 'Office','Hi',
+        scheduledNotificationDateTime, platformChannelSpecifics);
+  }
+
 }
