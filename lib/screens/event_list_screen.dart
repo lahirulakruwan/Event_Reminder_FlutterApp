@@ -29,12 +29,27 @@ class _EventListScreenState extends State<EventListScreen> {
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
   int count = 0;
-
+  int upcomingEventsCount = 0;
+  int overdueEventsCount = 0;
+  int tomorrowEventsCount = 0;
   @override
   Future<void> initState(){
     super.initState();
     dbHelper = DBHelper();
     refreshList();
+    getView();
+  }
+
+  favouriteEventList(){
+  }
+
+  Future<int> getView() async{
+    int upCount = await dbHelper.getUpcomingEventCount();
+    int ovCount = await dbHelper.getOverdueEventCount();
+    int toCount = await dbHelper.getTomorrowEventCount();
+    upcomingEventsCount = upCount;
+    overdueEventsCount = ovCount;
+    tomorrowEventsCount = toCount;
   }
 
 
@@ -45,7 +60,6 @@ class _EventListScreenState extends State<EventListScreen> {
       eventList.then((eventList) {
         setState(() {
           this.eventList = eventList;
-          print(this.eventList);
           this.count = eventList.length;
         });
       });
@@ -53,11 +67,10 @@ class _EventListScreenState extends State<EventListScreen> {
   }
 
   Future<List<AddEvent>> events;
-
+  Future<int> upcomingEventCount;
   refreshList() {
     setState(() {
       events = dbHelper.getEvents();
-
       // for(int i=0;i<this.count;i++)
       // {
       //
@@ -120,6 +133,7 @@ class _EventListScreenState extends State<EventListScreen> {
     }
 
     List<int> text = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    Set<String> savedWords = Set<String>();
 
     return DefaultTabController(
       length: 2,
@@ -339,10 +353,11 @@ class _EventListScreenState extends State<EventListScreen> {
                               children: <Widget>[
                                 GestureDetector(
                                   child: Icon(
-                                    Icons.more_vert,
+                                    Icons.favorite_border,
                                     color: Colors.red,
                                   ),
                                   onTap: () {
+                                    favouriteEventList();
                                     // _delete(context, todoList[position]);
                                   },
                                 ),
@@ -406,7 +421,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$overdueEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -429,7 +444,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$tomorrowEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -452,7 +467,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$upcomingEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),

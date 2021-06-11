@@ -44,9 +44,7 @@ class DBHelper {
 
   Future<AddEvent> save(AddEvent event) async {
     var dbclient = await db;
-    print(event);
     event.id = await dbclient.insert(TABLE, event.toMap());
-    print(event.id);
     return event;
   }
 
@@ -61,7 +59,6 @@ class DBHelper {
         events.add(AddEvent.fromMap(maps[i]));
       }
     }
-    events.forEach((x) { print(x.eventDate);});
     return events;
   }
 
@@ -85,12 +82,16 @@ class DBHelper {
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
     List<Map> maps;
+    int count;
     if(eventType =="tomorrow"){
       maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$tomorrow' AND '$tomorrow'");
+      count = maps.length;
     }else if(eventType =="upcoming"){
       maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$today' AND '2030-06-10 00:00:00.000'");
+      count = maps.length;
     }else if(eventType =="overdue"){
       maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '2000-06-10 00:00:00.000' AND '$yesterday'");
+      count = maps.length;
     }
 
     List<AddEvent> events = [];
@@ -101,5 +102,36 @@ class DBHelper {
     }
 
     return events;
+  }
+
+  Future<int> getUpcomingEventCount() async {
+    int count;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    var dbClient = await db;
+    List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$today' AND '2030-06-10 00:00:00.000'");
+    count = maps.length;
+    return count;
+  }
+
+  Future<int> getTomorrowEventCount() async {
+    int count;
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+
+    var dbClient = await db;
+    List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$tomorrow' AND '$tomorrow'");
+    count = maps.length;
+    return count;
+  }
+
+  Future<int> getOverdueEventCount() async {
+    int count;
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    var dbClient = await db;
+    List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '2000-06-10 00:00:00.000' AND '$yesterday'");
+    count = maps.length;
+    return count;
   }
 }
