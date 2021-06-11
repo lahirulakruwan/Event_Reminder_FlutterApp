@@ -1,4 +1,5 @@
-import 'package:event_reminder/screens/EventListFilter/filtered_event_list.dart';
+
+import 'package:event_reminder/screens/updateEventScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' as flutter_notification;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -9,6 +10,9 @@ import 'package:event_reminder/model/add_Event_Model.dart';
 import 'dart:async';
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:condition/condition.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'add_event_screen.dart';
 
 
@@ -60,6 +64,7 @@ class _EventListScreenState extends State<EventListScreen> {
       eventList.then((eventList) {
         setState(() {
           this.eventList = eventList;
+          print(this.eventList);
           this.count = eventList.length;
         });
       });
@@ -97,23 +102,6 @@ class _EventListScreenState extends State<EventListScreen> {
     setState(() {
       timeString = formattedDateTime;
     });
-    // for(int i=0;i<this.count;i++)
-    // {
-    //
-    //
-    //     var now = new DateTime.now();
-    //     var formatter = new DateFormat('yyyy-MM-dd');
-    //     String formattedDate = formatter.format(now);
-    //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
-    //     print("hurrrrrrrrreeeeeeee");
-    //     print(formattedDate);
-    //     print(eventDate);
-    //
-    //     if(eventDate.compareTo(formattedDate) == true){
-    //
-    //     }
-    //   }
-
   }
 
   String _formatDateTime() {
@@ -121,10 +109,28 @@ class _EventListScreenState extends State<EventListScreen> {
     return DateFormat('kk:mm:ss \nEEE, d MMM yyyy').format(now);
   }
 
+  deleteEvent(int id){
+
+    AddEvent  delete = AddEvent(id,null, null, null , null, null,null);
+
+    var type = dbHelper.deleteEvent(delete);
+
+    // if(type==true){
+    //
+    // Fluttertoast.showToast(msg: "Successfully Deleted ! ");
+     refreshList();
+    //
+    // }else{
+    // Fluttertoast.showToast(msg: "Unsucessfully Deleted ! ");
+    //
+    // }
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     timeString = _formatDateTime();
-
     Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
 
     if (eventList == null) {
@@ -351,15 +357,76 @@ class _EventListScreenState extends State<EventListScreen> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                GestureDetector(
+                                PopupMenuButton(
+
+                                  onSelected: (value) {
+                                    if (value == 0) {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Dialog(
+
+                                                child: updateEvent(id:eventList[index].id, name:eventList[index].eventName, description:eventList[index].eventDescription,date:eventList[index].eventDate,time:eventList[index].eventTime,priority:eventList[index].priority,type:eventList[index].eventType),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                    BorderRadius.all(Radius.circular(12))));
+                                          });
+                                    }else{
+                                      showDialog(
+                                          context: context,
+
+                                          builder: (BuildContext context) {
+                                            _timer = Timer(Duration(seconds: 5),(){
+                                              Navigator.of(context).pop();
+                                            });
+                                            return AlertDialog(
+                                              title: Text("Do You want to Delete this Event ?"),
+                                              content: Text("If You Delete this Event You cannot get it back !"),
+                                              actions: [
+                                                FlatButton(
+                                                  child: Text("No"),
+                                                  onPressed: ()=>Navigator.pop(context),
+                                                ),
+                                                FlatButton(
+                                                  child: Text("Yes"),
+                                                  onPressed: deleteEvent(eventList[index].id),
+                                                  color: Colors.red,
+                                                )
+                                              ],
+                                            );
+                                          });
+                                    }
+                                  },
+                                  itemBuilder: (context)=>[
+
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.update,color: Colors.blue,),
+                                            Text("Update Event")
+                                          ],
+                                        ),
+                                      value: 0,
+                                    ),
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.delete,
+                                                color: Colors.red,),
+                                            Text("Delete Event"),
+
+                                          ],
+
+                                        ),
+                                      value: 1,
+                                    )
+                                  ],
                                   child: Icon(
-                                    Icons.favorite_border,
+                                    Icons.more_vert,
                                     color: Colors.red,
                                   ),
-                                  onTap: () {
-                                    favouriteEventList();
-                                    // _delete(context, todoList[position]);
-                                  },
                                 ),
                               ],
                             ),
@@ -505,7 +572,7 @@ class _EventListScreenState extends State<EventListScreen> {
                           child: AddEventPage(),
                           shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(12))));
+                              BorderRadius.all(Radius.circular(12))));
                     });
               },
               child: Icon(

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -44,7 +43,9 @@ class DBHelper {
 
   Future<AddEvent> save(AddEvent event) async {
     var dbclient = await db;
+    print(event);
     event.id = await dbclient.insert(TABLE, event.toMap());
+    print(event.id);
     return event;
   }
 
@@ -60,6 +61,29 @@ class DBHelper {
       }
     }
     return events;
+  }
+
+  Future<bool> deleteEvent(AddEvent event) async{
+
+    var dbClient = await db;
+
+    var count = await dbClient.rawDelete('DELETE FROM $TABLE WHERE $ID = ?', [event.id]);
+
+    print("safasfaf $count");
+   if(count<0){
+     return false;
+   }else{
+     return true;
+   }
+
+
+  }
+
+  Future<AddEvent> Update(AddEvent event) async {
+    var dbclient = await db;
+    print(event);
+    var val = await dbclient.rawQuery('UPDATE $TABLE SET $EVENTNAME = ? , $EVENTDESCRIPTION= ? , $EVENTDATE = ? , $EVENTTIME=? , $EVENTTYPE=? , $PRIORITY = ? WHERE $ID = ? ', [event.eventName,event.eventDescription,event.eventDate,event.eventTime,event.eventType,event.priority,event.id]);
+    return event;
   }
 
   Future<List<AddEvent>> getEventsUpComingList() async {
