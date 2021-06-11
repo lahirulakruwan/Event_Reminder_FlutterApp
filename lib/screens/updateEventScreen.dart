@@ -306,6 +306,7 @@ class _UpdateEventPageState extends State<updateEvent> {
                     FlatButton(
                       color: Colors.lightBlue,
                       child: Text('CANCEL'),
+                      onPressed: ()=>Navigator.pop(context),
 
                     ),
                   ],
