@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:event_reminder/model/add_Event_Model.dart';
 import 'dart:async';
 
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
+
+import 'event_list_screen.dart';
+
 class AddEventPage extends StatefulWidget {
 
 
@@ -54,6 +59,7 @@ class _AddEventPageState extends State<AddEventPage> {
     dbHelper = DBHelper();
   }
 
+
   String _selectedDate = 'Pick date';
   String _selectedTime = 'Pick Time';
 
@@ -83,15 +89,27 @@ class _AddEventPageState extends State<AddEventPage> {
       initialTime: new TimeOfDay.now());
   if(timepck!=null){
     setState(() {
-      _selectedTime = timepck.toString();
+      _selectedTime = timepck.format(context).toString();
     });
   }
  }
 
  clearName(){
-    controller.text = '';
+    controller.clear();
  }
-  validate(){
+
+ void toastMessage(){
+   Fluttertoast.showToast(
+       msg: 'Event Inserted Successfully',
+       toastLength: Toast.LENGTH_SHORT,
+       gravity: ToastGravity.BOTTOM,
+       backgroundColor: Colors.lightBlue,
+       textColor: Colors.white
+   );
+
+ }
+
+  void validate(){
 
     if(_formKey.currentState.validate()){
       _formKey.currentState.save();
@@ -101,8 +119,11 @@ class _AddEventPageState extends State<AddEventPage> {
         print( _selectedTime);
         print(eventVal);
         print(priorityVal);
-        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, _selectedDate , _selectedTime, eventVal,priorityVal);
+        var formatter = new DateFormat('yyyy-MM-dd');
+        String formattedDate = formatter.format(DateTime.parse(_selectedDate));
+        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, formattedDate , _selectedTime, eventVal,priorityVal);
         dbHelper.save(_addevent);
+        toastMessage();
         clearName();
 
     }
@@ -158,16 +179,14 @@ class _AddEventPageState extends State<AddEventPage> {
             _dateTimePicker(Icons.access_time,_pickTime,_selectedTime),
             SizedBox(height: 30,),
             Column(
-
               children: <Widget>[
-                       Text(
-                           'Select Task Type:',
+                Text(  'Select Task Type:',
                            style:TextStyle(fontSize: 16.0,fontWeight: FontWeight.bold),
                            textAlign:TextAlign.start ),
                 SizedBox(height: 10,),
-                DropdownButton<Event>(
-                  items: Events.map((Event event) {
-                    return  DropdownMenuItem<Event>(
+               DropdownButton<Event>(
+                     items: Events.map((Event event) {
+                       return  DropdownMenuItem<Event>(
                       value: event,
                       child: Row(
                         children: <Widget>[
@@ -219,20 +238,29 @@ class _AddEventPageState extends State<AddEventPage> {
                   },
                   value:  defaultPriorityVal ,
                 ),
-              ],
+               ],
             ),
+            SizedBox(height: 30,),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
+            FlatButton(
+              color: Colors.red,
+              child: Text('CANCEL'),
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EventListScreen() ),
+                );
+              },
+            ),
             FlatButton(
                 color: Colors.lightBlue,
                 onPressed: validate,
                 child: Text('ADD'),
             ),
-            FlatButton(
-              color: Colors.lightBlue,
-              child: Text('CANCEL'),
-            ),
+
           ],
         ),
           ],

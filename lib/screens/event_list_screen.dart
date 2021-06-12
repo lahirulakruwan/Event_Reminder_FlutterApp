@@ -1,4 +1,8 @@
+
+import 'package:event_reminder/screens/updateEventScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as flutter_notification;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:developer';
@@ -7,10 +11,15 @@ import 'dart:async';
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:condition/condition.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
+import 'EventListFilter/filtered_event_list.dart';
 import 'add_event_screen.dart';
 
+
 class EventListScreen extends StatefulWidget {
+
+
   const EventListScreen({Key key}) : super(key: key);
 
   @override
@@ -18,18 +27,25 @@ class EventListScreen extends StatefulWidget {
 }
 
 class _EventListScreenState extends State<EventListScreen> {
+
+  flutter_notification.FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new flutter_notification.FlutterLocalNotificationsPlugin();
   String timeString;
   final formKey = new GlobalKey<FormState>();
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
+  int upcomingEventsCount = 0;
+  int overdueEventsCount = 0;
+  int tomorrowEventsCount = 0;
+
   int count = 0;
 
   @override
-  void initState() {
+  Future<void> initState(){
     super.initState();
     dbHelper = DBHelper();
     refreshList();
   }
+
 
   void updateListView() {
     final Future<Database> dbFuture = dbHelper.initDb();
@@ -45,14 +61,61 @@ class _EventListScreenState extends State<EventListScreen> {
     });
   }
 
+  void updateEventCount() {
+    final Future<Database> dbFuture = dbHelper.initDb();
+    dbFuture.then((database) {
+      Future<int> upcomingEventCounts = dbHelper.getUpcomingEventCount();
+      Future<int> overdueEventCounts = dbHelper.getOverdueEventCount();
+      Future<int> tomorrowEventCounts = dbHelper.getTomorrowEventCount();
+
+      upcomingEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.upcomingEventsCount = counts;
+        })
+      });
+
+      overdueEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.overdueEventsCount = counts;
+        })
+      });
+
+      tomorrowEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.tomorrowEventsCount = counts;
+        })
+      });
+    });
+  }
   Future<List<AddEvent>> events;
 
   refreshList() {
     setState(() {
       events = dbHelper.getEvents();
+
+      // for(int i=0;i<this.count;i++)
+      // {
+      //
+      //
+      //     var now = new DateTime.now();
+      //     var formatter = new DateFormat('yyyy-MM-dd');
+      //     String formattedDate = formatter.format(now);
+      //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
+      //     print("hurrrrrrrrreeeeeeee");
+      //     print(formattedDate);
+      //     print(eventDate);
+      //
+      //     if(eventDate.compareTo(formattedDate) == true){
+      //
+      //     }
+      //   }
       print("events");
       print(events);
     });
+    updateEventCount();
   }
 
   void getTime() {
@@ -67,6 +130,49 @@ class _EventListScreenState extends State<EventListScreen> {
     return DateFormat('kk:mm:ss \nEEE, d MMM yyyy').format(now);
   }
 
+  deleteEvent(int id){
+
+    AddEvent  delete = AddEvent(id,null, null, null , null, null,null);
+    var type = dbHelper.deleteEvent(delete);
+    return type;
+  }
+
+  void toastMessageForDelete(int deleteItemID) {
+    deleteEvent(deleteItemID);
+
+    Fluttertoast.showToast(
+        msg: 'Event Deleted Successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.lightBlue,
+        textColor: Colors.white
+    );
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Event Deleted !!"),
+          content: new Text("You Cannot Get Gack Deleted Event "),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EventListScreen() ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     timeString = _formatDateTime();
@@ -75,14 +181,20 @@ class _EventListScreenState extends State<EventListScreen> {
     if (eventList == null) {
       eventList = List<AddEvent>();
       updateListView();
+      updateEventCount();
     }
 
     List<int> text = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    Set<String> savedWords = Set<String>();
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          flexibleSpace: Image.asset(
+            'assets/back2.jpg',
+            fit: BoxFit.cover,
+          ),
           bottom: TabBar(
             labelColor: Colors.black87,
             tabs: [
@@ -141,175 +253,261 @@ class _EventListScreenState extends State<EventListScreen> {
                       itemCount: count,
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.blue, width: 1.0),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
                           color: Colors.white,
                           elevation: 2.0,
                           child: ListTile(
                             leading: Builder(builder: (context) {
-                              if (this.eventList[index].priority == 'High')
-                                return CircleAvatar(
-                                  backgroundColor: Colors.red,
-                                  child: Builder(
-                                    builder: (context) {
-                                      if (this.eventList[index].eventType ==
-                                          'Travel')
-                                        return Icon(
-                                          Icons.card_travel,
-                                          color: Colors.white,
-                                        );
-                                      else if (this
-                                              .eventList[index]
-                                              .eventType ==
-                                          'Shopping')
-                                        return Icon(
-                                          Icons.shopping_cart_outlined,
-                                          color: Colors.white,
-                                        );
-                                      else if (this
-                                              .eventList[index]
-                                              .eventType ==
-                                          'Gym')
-                                        return Icon(
-                                          Icons.fitness_center,
-                                          color: Colors.white,
-                                        );
-                                      else if (this
-                                              .eventList[index]
-                                              .eventType ==
-                                          'Party')
-                                        return Icon(
-                                          Icons.party_mode,
-                                          color: Colors.white,
-                                        );
-                                      else if (this
-                                              .eventList[index]
-                                              .eventType ==
-                                          'Meeting')
-                                        return Icon(
-                                          Icons.meeting_room,
-                                          color: Colors.white,
-                                        );
-                                      else
-                                        return Icon(
-                                          Icons.event,
-                                          color: Colors.white,
-                                        );
-                                    },
-                                  ),
-                                );
-                              else
-                                return CircleAvatar(
+                              return Container(
+                                // decoration: BoxDecoration(
+                                //   color: Colors.white,
+                                //   shape: BoxShape.circle,
+                                //   boxShadow: [BoxShadow(
+                                //     color: Colors.black54,
+                                //     blurRadius: 20.0, // soften the shadow
+                                //     spreadRadius: 0.5, //extend the shadow
+                                //     offset: Offset(
+                                //       5.0, // Move to right 10  horizontally
+                                //       5.0, // Move to bottom 10 Vertically
+                                //     ),
+                                //   )],
+                                // ),
+                                child: CircleAvatar(
+                                  radius: 26.0,
                                   backgroundColor: Colors.lightBlue,
                                   child: Builder(
                                     builder: (context) {
                                       if (this.eventList[index].eventType ==
                                           'Travel')
-                                        return Icon(
-                                          Icons.card_travel,
-                                          color: Colors.white,
-                                        );
+                                        return Image.asset('assets/travel.png');
                                       else if (this
                                               .eventList[index]
                                               .eventType ==
                                           'Shopping')
-                                        return Icon(
-                                          Icons.shopping_cart_outlined,
-                                          color: Colors.white,
-                                        );
+                                        return Image.asset(
+                                            'assets/shopping.png');
                                       else if (this
                                               .eventList[index]
                                               .eventType ==
                                           'Gym')
-                                        return Icon(
-                                          Icons.fitness_center,
-                                          color: Colors.white,
-                                        );
+                                        return Image.asset('assets/gym.png');
                                       else if (this
                                               .eventList[index]
                                               .eventType ==
                                           'Party')
-                                        return Icon(
-                                          Icons.party_mode,
-                                          color: Colors.white,
-                                        );
+                                        return Image.asset('assets/party.png');
                                       else if (this
                                               .eventList[index]
                                               .eventType ==
                                           'Meeting')
-                                        return Icon(
-                                          Icons.meeting_room,
-                                          color: Colors.white,
-                                        );
+                                        return Image.asset(
+                                            'assets/meeting.png');
                                       else
-                                        return Icon(
-                                          Icons.event,
-                                          color: Colors.white,
-                                        );
+                                        return Image.asset('assets/event.png');
                                     },
                                   ),
-                                );
+                                ),
+                              );
                             }),
                             title: Text(this.eventList[index].eventName,
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: new EdgeInsets.only(
-                                        top: 3,
-                                        bottom: 5,
-                                      ),
-                                      child: Text(this
-                                          .eventList[index]
-                                          .eventDescription),
-                                    )
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      margin: EdgeInsets.only(left: 0),
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.date_range),
-                                          Text(
-                                            this.eventList[index].eventDate,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(left: 0),
-                                  child: Row(
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black)),
+                            subtitle: Builder(builder: (context) {
+                              return Column(
+                                children: [
+                                  Row(
                                     children: [
-                                      Icon(Icons.access_time),
-                                      Text(this.eventList[index].eventTime),
+                                      Container(
+                                        padding: new EdgeInsets.only(
+                                          top: 3,
+                                          bottom: 5,
+                                        ),
+                                        child: Text(
+                                            this
+                                                .eventList[index]
+                                                .eventDescription,
+                                            style: TextStyle(
+                                                color: Colors.black54)),
+                                      )
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.only(right: 10),
+                                        child: Builder(
+                                          builder: (context) {
+                                            if (this
+                                                    .eventList[index]
+                                                    .priority ==
+                                                'High')
+                                              return Row(
+                                                children: [
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            4.0),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.red,
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(20)
+                                                            )
+                                                    ),
+                                                    width: 20,
+                                                    height: 20,
+                                                    child: Center(
+                                                      child: Text(
+                                                        "",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            else
+                                              return Row(
+                                                children: [
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            4.0),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.blue,
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(20)
+                                                            )
+                                                    ),
+                                                    width: 20,
+                                                    height: 20,
+                                                    child: Center(
+                                                      child: Text(
+                                                        "",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                          },
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(left: 0),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.date_range),
+                                            Text(
+                                                " " +
+                                                    this
+                                                        .eventList[index]
+                                                        .eventDate,
+                                                style: TextStyle(
+                                                    color: Colors.black54)),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(left: 5),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.access_time),
+                                            Text(
+                                              " " +
+                                                  this
+                                                      .eventList[index]
+                                                      .eventTime,
+                                              style: TextStyle(
+                                                  color: Colors.black54),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(left: 0),
+                                    child: Row(
+                                      children: [],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                GestureDetector(
+                                PopupMenuButton(
+
+                                  onSelected: (value) {
+                                    if (value == 1) {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Dialog(
+
+                                                child: updateEvent(id:eventList[index].id, name:eventList[index].eventName, description:eventList[index].eventDescription,date:eventList[index].eventDate,time:eventList[index].eventTime,priority:eventList[index].priority,type:eventList[index].eventType),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                    BorderRadius.all(Radius.circular(12))));
+                                          });
+                                    }else{
+                                      toastMessageForDelete(eventList[index].id);
+                                    }
+                                  },
+                                  itemBuilder: (context)=>[
+
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.update,color: Colors.blue,),
+                                            Text("Update Event")
+                                          ],
+                                        ),
+                                      value: 1,
+                                    ),
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.delete,
+                                                color: Colors.red,),
+                                            Text("Delete Event"),
+
+
+
+
+                                          ],
+
+
+
+                                        ),
+
+                                      value: 0,
+                                    )
+                                  ],
                                   child: Icon(
                                     Icons.more_vert,
-                                    color: Colors.red,
+                                    color: Colors.grey,
                                   ),
-                                  onTap: () {
-                                    // _delete(context, todoList[position]);
-                                  },
                                 ),
                               ],
                             ),
-                            onTap: () {
-                              // debugPrint("ListTile Tapped");
-                              // navigateToDetail(this.todoList[position], 'Edit Todo');
-                            },
                           ),
                         );
                       },
@@ -334,22 +532,34 @@ class _EventListScreenState extends State<EventListScreen> {
                 height: 350.0,
                 child: DrawerHeader(
                   decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("assets/back3.png"),
-                      fit: BoxFit.cover,
-                    ),
-                    color: Colors.blue,
+                    // image: DecorationImage(
+                    //   image: AssetImage("assets/back2.jpg"),
+                    //   fit: BoxFit.cover,
+                    // ),
+                    color: Colors.white,
                   ),
-                  child: Text(
-                    timeString,
-                    textAlign: TextAlign.start,
-                    // Text(timeString,textAlign: TextAlign.start,style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 31.0, color: Colors.white),),
+                  child: Column(
+                    children: [
+                      Image.asset('assets/logo.png'),
+                      Container(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          timeString,
+                          style: new TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 15.0),
+                          textAlign: TextAlign.start,
+                          // Text(timeString,textAlign: TextAlign.start,style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 31.0, color: Colors.white),),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("overdue")));},
                 title: Text(
                   'Overdue Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -364,7 +574,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$overdueEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -373,7 +583,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("tomorrow")));},
                 title: Text(
                   'Tomorrow Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -387,7 +597,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$tomorrowEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -396,7 +606,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("upcoming")));},
                 title: Text(
                   'Upcoming Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -410,7 +620,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$upcomingEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -430,7 +640,7 @@ class _EventListScreenState extends State<EventListScreen> {
           ),
         ),
         bottomNavigationBar: BottomAppBar(
-          color: Colors.lightBlue,
+          color: Colors.lightBlueAccent,
           shape: const CircularNotchedRectangle(),
           child: Container(height: 50.0),
         ),
@@ -448,14 +658,14 @@ class _EventListScreenState extends State<EventListScreen> {
                           child: AddEventPage(),
                           shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(12))));
+                              BorderRadius.all(Radius.circular(12))));
                     });
               },
               child: Icon(
                 Icons.add,
                 size: 30.0,
               ),
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: Colors.lightBlue,
             ),
           ),
         ),
@@ -464,4 +674,29 @@ class _EventListScreenState extends State<EventListScreen> {
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
+  void scheduleAlarm() async {
+    var scheduledNotificationDateTime =
+        DateTime.now().add(Duration(seconds: 10));
+
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'alarm_notif',
+      'alarm_notif',
+      'Channel for Alarm notification',
+      icon: 'bell',
+      sound: RawResourceAndroidNotificationSound('a_long_cold_sting'),
+      largeIcon: DrawableResourceAndroidBitmap('bell'),
+    );
+
+    var iOSPlatformChannelSpecifics = IOSNotificationDetails(
+        sound: 'a_long_cold_sting.wav',
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true);
+    var platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.schedule(0, 'Office','Hi',
+        scheduledNotificationDateTime, platformChannelSpecifics);
+  }
+
 }
