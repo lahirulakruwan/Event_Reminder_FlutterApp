@@ -190,7 +190,7 @@ class _EventListScreenState extends State<EventListScreen> {
     AddEvent updateFavorite = AddEvent(itemId,null, null, null , null, null,null, favNumber);
     await dbHelper.addedToFavorite(updateFavorite);
     Fluttertoast.showToast(
-        msg: favNumber == 1 ? 'Added to Favorite' : 'Removed from favorite',
+        msg: favNumber == 0 ? 'Added to Favorite' : 'Removed from favorite',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.lightBlue,
