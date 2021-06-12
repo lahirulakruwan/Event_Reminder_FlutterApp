@@ -144,15 +144,15 @@ class _EventListScreenState extends State<EventListScreen> {
     return DateFormat('kk:mm:ss \nEEE, d MMM yyyy').format(now);
   }
 
-  deleteEvent(int id){
+  deleteEvent(int id) async {
 
     AddEvent  delete = AddEvent(id,null, null, null , null, null,null, null);
-    var type = dbHelper.deleteEvent(delete);
+    var type = await dbHelper.deleteEvent(delete);
     return type;
   }
 
-  void toastMessageForDelete(int deleteItemID) {
-    deleteEvent(deleteItemID);
+  void toastMessageForDelete(int deleteItemID) async {
+    await deleteEvent(deleteItemID);
 
     Fluttertoast.showToast(
         msg: 'Event Deleted Successfully',
@@ -186,9 +186,9 @@ class _EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  void toastMessageForUpdate(int itemId, int favNumber) {
+  void toastMessageForUpdate(int itemId, int favNumber) async{
     AddEvent updateFavorite = AddEvent(itemId,null, null, null , null, null,null, favNumber);
-    dbHelper.addedToFavorite(updateFavorite);
+    await dbHelper.addedToFavorite(updateFavorite);
     Fluttertoast.showToast(
         msg: favNumber == 1 ? 'Added to Favorite' : 'Removed from favorite',
         toastLength: Toast.LENGTH_SHORT,
