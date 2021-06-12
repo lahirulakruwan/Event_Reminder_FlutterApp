@@ -119,6 +119,7 @@ class _EventListScreenState extends State<EventListScreen> {
     setState(() {
       timeString = formattedDateTime;
     });
+
     for(int i=0;i<this.eventList.length;i++)
     {
 
@@ -132,7 +133,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
 
       if(eventDate == formattedDate &&  nowTime == eventList[i].eventTime){
-        scheduleAlarm(eventList[i].eventName,eventList[i].eventType,eventList[i].priority);
+        scheduleAlarm(eventList[i].eventName,eventList[i].eventDate);
         break;
       }
     }
@@ -143,15 +144,15 @@ class _EventListScreenState extends State<EventListScreen> {
     return DateFormat('kk:mm:ss \nEEE, d MMM yyyy').format(now);
   }
 
-  deleteEvent(int id){
+  deleteEvent(int id) async {
 
     AddEvent  delete = AddEvent(id,null, null, null , null, null,null, null);
-    var type = dbHelper.deleteEvent(delete);
+    var type = await dbHelper.deleteEvent(delete);
     return type;
   }
 
-  void toastMessageForDelete(int deleteItemID) {
-    deleteEvent(deleteItemID);
+  void toastMessageForDelete(int deleteItemID) async {
+    await deleteEvent(deleteItemID);
 
     Fluttertoast.showToast(
         msg: 'Event Deleted Successfully',
@@ -185,11 +186,11 @@ class _EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  void toastMessageForUpdate(int itemId, int favNumber) {
+  void toastMessageForUpdate(int itemId, int favNumber) async{
     AddEvent updateFavorite = AddEvent(itemId,null, null, null , null, null,null, favNumber);
-    dbHelper.addedToFavorite(updateFavorite);
+    await dbHelper.addedToFavorite(updateFavorite);
     Fluttertoast.showToast(
-        msg: 'Added to Favorite',
+        msg: favNumber == 1 ? 'Added to Favorite' : 'Removed from favorite',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.lightBlue,
@@ -794,18 +795,6 @@ class _EventListScreenState extends State<EventListScreen> {
                                       ),
 
                                       value: 0,
-                                    ),
-                                    PopupMenuItem(
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.favorite,
-                                            color: Colors.red,),
-                                          Text("Favorite"),
-                                        ],
-                                      ),
-
-                                      value: 3,
                                     )
                                   ],
                                   child: Icon(
@@ -1000,10 +989,12 @@ class _EventListScreenState extends State<EventListScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
-  void scheduleAlarm(String eventname,String eventtype,String priority) async {
+  void scheduleAlarm(String eventname,String eventdate) async {
+
+    var _priority;
+
     var scheduledNotificationDateTime =
         DateTime.now().add(Duration(seconds: 1));
 
@@ -1011,9 +1002,9 @@ class _EventListScreenState extends State<EventListScreen> {
       'alarm_notif',
       'alarm_notif',
       'Channel for Alarm notification',
-      icon: 'bell',
+      icon: 'bell_icon',
       sound: RawResourceAndroidNotificationSound('a_long_cold_sting'),
-      largeIcon: DrawableResourceAndroidBitmap('bell'),
+      largeIcon: DrawableResourceAndroidBitmap('bell_icon'),
     );
 
     var iOSPlatformChannelSpecifics = IOSNotificationDetails(
@@ -1024,8 +1015,9 @@ class _EventListScreenState extends State<EventListScreen> {
     var platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.schedule(0,eventname,priority,
+
+
+    await flutterLocalNotificationsPlugin.schedule(0,eventname,eventdate,
         scheduledNotificationDateTime, platformChannelSpecifics);
   }
-
 }
