@@ -328,23 +328,25 @@ class _UpdateEventPageState extends State<updateEvent> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
+
                     FlatButton(
-                      color: Colors.lightBlue,
-                      onPressed: Updateclick,
-                      child: Text('Update'),
-                    ),
-                    FlatButton(
-                      color: Colors.lightBlue,
+                      color: Colors.red,
                       child: Text('CANCEL'),
                       onPressed: (){
                         Navigator.push(
-                          context,
+                          context,/**/
                           MaterialPageRoute(
                               builder: (context) => EventListScreen() ),
                         );
                       },
 
                     ),
+                    FlatButton(
+                      color: Colors.lightBlue,
+                      onPressed: Updateclick,
+                      child: Text('Update'),
+                    ),
+
                   ],
                 ),
               ],
