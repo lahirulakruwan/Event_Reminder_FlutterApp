@@ -176,7 +176,7 @@ class _EventListScreenState extends State<EventListScreen> {
   @override
   Widget build(BuildContext context) {
     timeString = _formatDateTime();
-    // Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
+    Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
 
     if (eventList == null) {
       eventList = List<AddEvent>();
