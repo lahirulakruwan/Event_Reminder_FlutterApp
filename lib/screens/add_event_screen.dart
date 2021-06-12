@@ -113,15 +113,9 @@ class _AddEventPageState extends State<AddEventPage> {
 
     if(_formKey.currentState.validate()){
       _formKey.currentState.save();
-        print(eventName);
-        print(eventDescription);
-        print( _selectedDate);
-        print( _selectedTime);
-        print(eventVal);
-        print(priorityVal);
-        var formatter = new DateFormat('yyyy-MM-dd');
+      var formatter = new DateFormat('yyyy-MM-dd');
         String formattedDate = formatter.format(DateTime.parse(_selectedDate));
-        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, formattedDate , _selectedTime, eventVal,priorityVal);
+        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, formattedDate , _selectedTime, eventVal,priorityVal, 0);
         dbHelper.save(_addevent);
         toastMessage();
         clearName();

@@ -6,8 +6,8 @@ class AddEvent{
   String eventTime;
   String eventType;
   String priority;
-
-  AddEvent(this.id,this.eventName,this.eventDescription,this.eventDate,this.eventTime,this.eventType,this.priority);
+  int favorite;
+  AddEvent(this.id,this.eventName,this.eventDescription,this.eventDate,this.eventTime,this.eventType,this.priority, this.favorite);
 
 
 
@@ -20,6 +20,7 @@ class AddEvent{
       'eventTime' : eventTime,
       'eventType' : eventType,
       'priority' : priority,
+      'favorite' : favorite
     };
    return map;
   }
@@ -32,6 +33,7 @@ class AddEvent{
     eventTime = map['eventTime'];
     eventType = map['eventType'];
     priority = map['priority'];
+    favorite = map['favorite'];
   }
 
 }
