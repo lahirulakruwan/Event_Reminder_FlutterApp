@@ -1,6 +1,7 @@
+
+import 'package:event_reminder/screens/updateEventScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    as flutter_notification;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as flutter_notification;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -10,10 +11,15 @@ import 'dart:async';
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:condition/condition.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
+import 'EventListFilter/filtered_event_list.dart';
 import 'add_event_screen.dart';
 
+
 class EventListScreen extends StatefulWidget {
+
+
   const EventListScreen({Key key}) : super(key: key);
 
   @override
@@ -21,21 +27,25 @@ class EventListScreen extends StatefulWidget {
 }
 
 class _EventListScreenState extends State<EventListScreen> {
-  flutter_notification.FlutterLocalNotificationsPlugin
-      flutterLocalNotificationsPlugin =
-      new flutter_notification.FlutterLocalNotificationsPlugin();
+
+  flutter_notification.FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new flutter_notification.FlutterLocalNotificationsPlugin();
   String timeString;
   final formKey = new GlobalKey<FormState>();
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
+  int upcomingEventsCount = 0;
+  int overdueEventsCount = 0;
+  int tomorrowEventsCount = 0;
+
   int count = 0;
 
   @override
-  Future<void> initState() {
+  Future<void> initState(){
     super.initState();
     dbHelper = DBHelper();
     refreshList();
   }
+
 
   void updateListView() {
     final Future<Database> dbFuture = dbHelper.initDb();
@@ -51,6 +61,35 @@ class _EventListScreenState extends State<EventListScreen> {
     });
   }
 
+  void updateEventCount() {
+    final Future<Database> dbFuture = dbHelper.initDb();
+    dbFuture.then((database) {
+      Future<int> upcomingEventCounts = dbHelper.getUpcomingEventCount();
+      Future<int> overdueEventCounts = dbHelper.getOverdueEventCount();
+      Future<int> tomorrowEventCounts = dbHelper.getTomorrowEventCount();
+
+      upcomingEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.upcomingEventsCount = counts;
+        })
+      });
+
+      overdueEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.overdueEventsCount = counts;
+        })
+      });
+
+      tomorrowEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.tomorrowEventsCount = counts;
+        })
+      });
+    });
+  }
   Future<List<AddEvent>> events;
 
   refreshList() {
@@ -76,6 +115,7 @@ class _EventListScreenState extends State<EventListScreen> {
       print("events");
       print(events);
     });
+    updateEventCount();
   }
 
   void getTime() {
@@ -83,22 +123,6 @@ class _EventListScreenState extends State<EventListScreen> {
     setState(() {
       timeString = formattedDateTime;
     });
-    // for(int i=0;i<this.count;i++)
-    // {
-    //
-    //
-    //     var now = new DateTime.now();
-    //     var formatter = new DateFormat('yyyy-MM-dd');
-    //     String formattedDate = formatter.format(now);
-    //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
-    //     print("hurrrrrrrrreeeeeeee");
-    //     print(formattedDate);
-    //     print(eventDate);
-    //
-    //     if(eventDate.compareTo(formattedDate) == true){
-    //
-    //     }
-    //   }
   }
 
   String _formatDateTime() {
@@ -106,18 +130,62 @@ class _EventListScreenState extends State<EventListScreen> {
     return DateFormat('kk:mm:ss \nEEE, d MMM yyyy').format(now);
   }
 
+  deleteEvent(int id){
+
+    AddEvent  delete = AddEvent(id,null, null, null , null, null,null);
+    var type = dbHelper.deleteEvent(delete);
+    return type;
+  }
+
+  void toastMessageForDelete(int deleteItemID) {
+    deleteEvent(deleteItemID);
+
+    Fluttertoast.showToast(
+        msg: 'Event Deleted Successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.lightBlue,
+        textColor: Colors.white
+    );
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Event Deleted !!"),
+          content: new Text("You Cannot Get Gack Deleted Event "),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EventListScreen() ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     timeString = _formatDateTime();
-
-    Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
+    // Timer.periodic(Duration(seconds: 1), (Timer t) => getTime());
 
     if (eventList == null) {
       eventList = List<AddEvent>();
       updateListView();
+      updateEventCount();
     }
 
     List<int> text = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    Set<String> savedWords = Set<String>();
 
     return DefaultTabController(
       length: 2,
@@ -383,21 +451,63 @@ class _EventListScreenState extends State<EventListScreen> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                GestureDetector(
+                                PopupMenuButton(
+
+                                  onSelected: (value) {
+                                    if (value == 1) {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Dialog(
+
+                                                child: updateEvent(id:eventList[index].id, name:eventList[index].eventName, description:eventList[index].eventDescription,date:eventList[index].eventDate,time:eventList[index].eventTime,priority:eventList[index].priority,type:eventList[index].eventType),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                    BorderRadius.all(Radius.circular(12))));
+                                          });
+                                    }else{
+                                      toastMessageForDelete(eventList[index].id);
+                                    }
+                                  },
+                                  itemBuilder: (context)=>[
+
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.update,color: Colors.blue,),
+                                            Text("Update Event")
+                                          ],
+                                        ),
+                                      value: 1,
+                                    ),
+                                    PopupMenuItem(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                                Icons.delete,
+                                                color: Colors.red,),
+                                            Text("Delete Event"),
+
+
+
+
+                                          ],
+
+
+
+                                        ),
+
+                                      value: 0,
+                                    )
+                                  ],
                                   child: Icon(
                                     Icons.more_vert,
                                     color: Colors.grey,
                                   ),
-                                  onTap: () {
-                                    // _delete(context, todoList[position]);
-                                  },
                                 ),
                               ],
                             ),
-                            onTap: () {
-                              // debugPrint("ListTile Tapped");
-                              // navigateToDetail(this.todoList[position], 'Edit Todo');
-                            },
                           ),
                         );
                       },
@@ -449,7 +559,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("overdue")));},
                 title: Text(
                   'Overdue Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -464,7 +574,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$overdueEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -473,7 +583,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("tomorrow")));},
                 title: Text(
                   'Tomorrow Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -487,7 +597,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$tomorrowEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -496,7 +606,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.article_rounded),
-                onTap: () {},
+                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("upcoming")));},
                 title: Text(
                   'Upcoming Events',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
@@ -510,7 +620,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   height: 25,
                   child: Center(
                     child: Text(
-                      "1",
+                      "$upcomingEventsCount",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
@@ -548,7 +658,7 @@ class _EventListScreenState extends State<EventListScreen> {
                           child: AddEventPage(),
                           shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(12))));
+                              BorderRadius.all(Radius.circular(12))));
                     });
               },
               child: Icon(
@@ -564,7 +674,6 @@ class _EventListScreenState extends State<EventListScreen> {
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
-
   void scheduleAlarm() async {
     var scheduledNotificationDateTime =
         DateTime.now().add(Duration(seconds: 10));
@@ -584,10 +693,10 @@ class _EventListScreenState extends State<EventListScreen> {
         presentBadge: true,
         presentSound: true);
     var platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: iOSPlatformChannelSpecifics);
+        android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.schedule(0, 'Office', 'Hi',
+    await flutterLocalNotificationsPlugin.schedule(0, 'Office','Hi',
         scheduledNotificationDateTime, platformChannelSpecifics);
   }
+
 }
