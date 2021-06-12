@@ -9,7 +9,6 @@ import 'package:event_reminder/model/add_Event_Model.dart';
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'EventListFilter/filtered_event_list.dart';
 import 'add_event_screen.dart';
 
