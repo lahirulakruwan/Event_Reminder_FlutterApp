@@ -249,7 +249,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.star,
+                      Icons.favorite,
                       color: Colors.white,
                     ),
                     Text(
@@ -354,7 +354,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Container(
-                                        margin: EdgeInsets.only(right: 10),
+                                        margin: EdgeInsets.only(right: 0),
                                         child: Builder(
                                           builder: (context) {
                                             if (this
@@ -422,12 +422,11 @@ class _EventListScreenState extends State<EventListScreen> {
                                         ),
                                       ),
                                       Container(
-                                        margin: EdgeInsets.only(left: 0),
+                                        margin: EdgeInsets.only(left: 4),
                                         child: Row(
                                           children: [
                                             Icon(Icons.date_range),
                                             Text(
-                                                " " +
                                                     this
                                                         .eventList[index]
                                                         .eventDate,
@@ -437,12 +436,11 @@ class _EventListScreenState extends State<EventListScreen> {
                                         ),
                                       ),
                                       Container(
-                                        margin: EdgeInsets.only(left: 5),
+                                        margin: EdgeInsets.only(left: 3),
                                         child: Row(
                                           children: [
                                             Icon(Icons.access_time),
                                             Text(
-                                              " " +
                                                   this
                                                       .eventList[index]
                                                       .eventTime,
@@ -453,7 +451,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                         ),
                                       ),
                                       Container(
-                                        margin: EdgeInsets.only(left: 2),
+                                        margin: EdgeInsets.only(left: 0),
                                         child: Row(
                                           children: [
                                             Text("   "),
@@ -641,7 +639,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Container(
-                                        margin: EdgeInsets.only(right: 10),
+                                        margin: EdgeInsets.only(right: 4),
                                         child: Builder(
                                           builder: (context) {
                                             if (this
@@ -709,27 +707,22 @@ class _EventListScreenState extends State<EventListScreen> {
                                         ),
                                       ),
                                       Container(
-                                        margin: EdgeInsets.only(left: 0),
+                                        margin: EdgeInsets.only(left: 3),
                                         child: Row(
                                           children: [
                                             Icon(Icons.date_range),
-                                            Text(
-                                                " " +
-                                                    this
-                                                        .FaveventList[index]
-                                                        .eventDate,
+                                            Text(this.FaveventList[index].eventDate,
                                                 style: TextStyle(
                                                     color: Colors.black54)),
                                           ],
                                         ),
                                       ),
                                       Container(
-                                        margin: EdgeInsets.only(left: 5),
+                                        margin: EdgeInsets.only(left: 3),
                                         child: Row(
                                           children: [
                                             Icon(Icons.access_time),
                                             Text(
-                                              " " +
                                                   this
                                                       .FaveventList[index]
                                                       .eventTime,
@@ -740,7 +733,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                         ),
                                       ),
                                       Container(
-                                        margin: EdgeInsets.only(left: 2),
+                                        margin: EdgeInsets.only(left: 0),
                                         child: Row(
                                           children: [
                                             Text("   "),
