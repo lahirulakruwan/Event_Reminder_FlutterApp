@@ -96,6 +96,7 @@ class _EventListScreenState extends State<EventListScreen> {
       //   }
       print("events");
       print(events);
+      getView();
     });
   }
 
@@ -114,24 +115,9 @@ class _EventListScreenState extends State<EventListScreen> {
   deleteEvent(int id){
 
     AddEvent  delete = AddEvent(id,null, null, null , null, null,null);
-
     var type = dbHelper.deleteEvent(delete);
-
+    getView();
     return type;
-
-    // return Navigator.of(context).push(MaterialPageRoute(builder: (context)=>EventListScreen()));
-    //
-
-    // if(type==true){
-    //
-    // Fluttertoast.showToast(msg: "Successfully Deleted ! ");
-    //
-    // }else{
-    // Fluttertoast.showToast(msg: "Unsucessfully Deleted ! ");
-    //
-    // }
-
-
   }
 
   void toastMessageForDelete(int deleteItemID) {
@@ -167,6 +153,7 @@ class _EventListScreenState extends State<EventListScreen> {
         );
       },
     );
+    getView();
   }
 
 
