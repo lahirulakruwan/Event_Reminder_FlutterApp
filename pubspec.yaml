@@ -35,6 +35,16 @@ dependencies:
   condition: ^0.0.8
   fluttertoast: ^8.0.7
   flutter_local_notifications: ^5.0.0+4
+  flutter_launcher_icons: ^0.9.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo2.png"
+
+flutter_launcher_name:
+  name: "Event Reminder"
+
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +74,8 @@ flutter:
     - assets/event.png
     - assets/gym.png
     - assets/logo.png
+    - assets/logo1.png
+    - assets/logo2.png
     - assets/meeting.png
     - assets/party.png
     - assets/shopping.png
