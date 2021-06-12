@@ -1,12 +1,9 @@
-
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:event_reminder/model/add_Event_Model.dart';
 import 'dart:async';
-
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-
 import 'event_list_screen.dart';
 
 class AddEventPage extends StatefulWidget {
@@ -33,6 +30,7 @@ class Priority{
 class _AddEventPageState extends State<AddEventPage> {
 
   TextEditingController controller = TextEditingController();
+  TextEditingController controller1 = TextEditingController();
   final  _formKey  =  GlobalKey<FormState>();
   var dbHelper;
   bool isUpdating;
@@ -96,6 +94,7 @@ class _AddEventPageState extends State<AddEventPage> {
 
  clearName(){
     controller.clear();
+    controller1.clear();
  }
 
  void toastMessage(){
@@ -147,6 +146,7 @@ class _AddEventPageState extends State<AddEventPage> {
             )),
             SizedBox(height: 20,),
            TextFormField(
+              controller:  controller,
               onSaved: (val)=>eventName = val,
               // onChanged: (String eventname){
               //   getEventName(eventname);
@@ -161,10 +161,8 @@ class _AddEventPageState extends State<AddEventPage> {
              ),
             SizedBox(height: 20,),
             TextFormField(
+                controller: controller1,
                 onSaved: (val)=>eventDescription = val,
-              // onChanged: (String eventdescription){
-              //   getEventdescription(eventdescription);
-              // },
               validator: (eventdescription)=>(eventdescription.length < 10 ? 'At least 10 characters required':null),
               decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -185,6 +183,7 @@ class _AddEventPageState extends State<AddEventPage> {
                            textAlign:TextAlign.start ),
                 SizedBox(height: 10,),
                DropdownButton<Event>(
+
                      items: Events.map((Event event) {
                        return  DropdownMenuItem<Event>(
                       value: event,

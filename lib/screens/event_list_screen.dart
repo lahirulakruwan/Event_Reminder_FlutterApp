@@ -30,6 +30,7 @@ class _EventListScreenState extends State<EventListScreen> {
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
   int count = 0;
+  String _selectedTime = 'Pick Time';
 
   @override
   Future<void> initState(){
@@ -79,28 +80,40 @@ class _EventListScreenState extends State<EventListScreen> {
       print(events);
     });
   }
+  Future _pickTime() async{
+    TimeOfDay timepck = await showTimePicker(
+        context: context,
+        initialTime: new TimeOfDay.now());
+    if(timepck!=null){
+      setState(() {
+        _selectedTime = timepck.format(context).toString();
+      });
+    }
+  }
 
   void getTime() {
     String formattedDateTime = _formatDateTime();
     setState(() {
       timeString = formattedDateTime;
     });
-    // for(int i=0;i<this.count;i++)
-    // {
-    //
-    //
-    //     var now = new DateTime.now();
-    //     var formatter = new DateFormat('yyyy-MM-dd');
-    //     String formattedDate = formatter.format(now);
-    //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
-    //     print("hurrrrrrrrreeeeeeee");
-    //     print(formattedDate);
-    //     print(eventDate);
-    //
-    //     if(eventDate.compareTo(formattedDate) == true){
-    //
-    //     }
-    //   }
+    for(int i=0;i<this.eventList.length;i++)
+    {
+
+
+        var now = new DateTime.now();
+
+        var formatter = new DateFormat('yyyy-MM-dd');
+        String formattedDate = formatter.format(now);
+        String nowTime =  DateFormat('kk:mm').format(now);
+        String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
+        // print(formattedDate);
+        //  print(nowTime);
+
+        if(eventDate == formattedDate &&  nowTime == eventList[i].eventTime){
+          scheduleAlarm(eventList[i].eventName,eventList[i].eventType,eventList[i].priority);
+          break;
+        }
+      }
 
   }
 
@@ -507,9 +520,9 @@ class _EventListScreenState extends State<EventListScreen> {
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
-  void scheduleAlarm() async {
-
-    var  scheduledNotificationDateTime = DateTime.now().add(Duration(seconds: 10));
+  void scheduleAlarm(String eventname,String eventtype,String priority) async {
+    
+    var  scheduledNotificationDateTime = DateTime.now().add(Duration(seconds: 1));
 
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'alarm_notif',
@@ -528,8 +541,8 @@ class _EventListScreenState extends State<EventListScreen> {
     var platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.schedule(0, 'Office','Hi',
-        scheduledNotificationDateTime, platformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.schedule(0,eventname,priority,scheduledNotificationDateTime, platformChannelSpecifics);
   }
 
 }
