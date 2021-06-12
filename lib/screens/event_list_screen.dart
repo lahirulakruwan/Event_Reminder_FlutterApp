@@ -529,7 +529,7 @@ class _EventListScreenState extends State<EventListScreen> {
             padding: EdgeInsets.zero,
             children: <Widget>[
               Container(
-                height: 350.0,
+                height: 380.0,
                 child: DrawerHeader(
                   decoration: BoxDecoration(
                     // image: DecorationImage(
@@ -542,14 +542,15 @@ class _EventListScreenState extends State<EventListScreen> {
                     children: [
                       Image.asset('assets/logo.gif'),
                       Container(
-                        alignment: Alignment.bottomLeft,
+                        margin: EdgeInsets.only(top: 18),
+                        alignment: Alignment.bottomRight,
                         child: Text(
                           timeString,
                           style: new TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              fontSize: 17.0),
-                          textAlign: TextAlign.start,
+                              color: Colors.black54,
+                              fontSize: 22.0),
+                          textAlign: TextAlign.right,
                           // Text(timeString,textAlign: TextAlign.start,style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 31.0, color: Colors.white),),
                         ),
                       ),
@@ -558,16 +559,17 @@ class _EventListScreenState extends State<EventListScreen> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.article_rounded),
+                tileColor: Colors.cyanAccent,
+                leading: Icon(Icons.alarm_off, color: Colors.black),
                 onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("overdue")));},
                 title: Text(
                   'Overdue Events',
-                  style: TextStyle(color: Colors.black54, fontSize: 16.0),
+                  style: TextStyle(color: Colors.black, fontSize: 16.0),
                 ),
                 trailing: Container(
                   padding: const EdgeInsets.all(5.0),
                   decoration: BoxDecoration(
-                    color: Colors.amber,
+                    color: Colors.purpleAccent,
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                   ),
                   width: 25,
@@ -582,16 +584,17 @@ class _EventListScreenState extends State<EventListScreen> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.article_rounded),
+                tileColor: Colors.white,
+                leading: Icon(Icons.alarm, color: Colors.black),
                 onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("tomorrow")));},
                 title: Text(
                   'Tomorrow Events',
-                  style: TextStyle(color: Colors.black54, fontSize: 16.0),
+                  style: TextStyle(color: Colors.black, fontSize: 16.0),
                 ),
                 trailing: Container(
                   padding: const EdgeInsets.all(5.0),
                   decoration: BoxDecoration(
-                      color: Colors.amber,
+                      color: Colors.purpleAccent,
                       borderRadius: BorderRadius.all(Radius.circular(20))),
                   width: 25,
                   height: 25,
@@ -605,16 +608,17 @@ class _EventListScreenState extends State<EventListScreen> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.article_rounded),
+                tileColor: Colors.cyanAccent,
+                leading: Icon(Icons.alarm_on, color: Colors.black,),
                 onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("upcoming")));},
                 title: Text(
                   'Upcoming Events',
-                  style: TextStyle(color: Colors.black54, fontSize: 16.0),
+                  style: TextStyle(color: Colors.black, fontSize: 16.0),
                 ),
                 trailing: Container(
                   padding: const EdgeInsets.all(5.0),
                   decoration: BoxDecoration(
-                      color: Colors.amber,
+                      color: Colors.purpleAccent,
                       borderRadius: BorderRadius.all(Radius.circular(20))),
                   width: 25,
                   height: 25,
@@ -640,9 +644,30 @@ class _EventListScreenState extends State<EventListScreen> {
           ),
         ),
         bottomNavigationBar: BottomAppBar(
-          color: Colors.lightBlueAccent,
+          color: Colors.blue,
           shape: const CircularNotchedRectangle(),
-          child: Container(height: 50.0),
+          child: IconTheme(
+            data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                  tooltip: 'Overdue Events',
+                  icon: const Icon(Icons.alarm_off),
+                  onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("overdue")));},
+                ),
+                IconButton(
+                  tooltip: 'Tomorrow Events',
+                  icon: const Icon(Icons.alarm),
+                  onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("tomorrow")));},
+                ),
+                IconButton(
+                  tooltip: 'Upcoming Events',
+                  icon: const Icon(Icons.alarm_on),
+                  onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UpComingEventList("upcoming")));},
+                ),
+              ],
+            ),
+          ),
         ),
         floatingActionButton: Container(
           height: 70.0,
@@ -665,7 +690,7 @@ class _EventListScreenState extends State<EventListScreen> {
                 Icons.add,
                 size: 30.0,
               ),
-              backgroundColor: Colors.lightBlue,
+              backgroundColor: Colors.purpleAccent,
             ),
           ),
         ),
