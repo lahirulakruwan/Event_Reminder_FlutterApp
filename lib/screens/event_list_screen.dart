@@ -5,12 +5,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart' as
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import 'dart:developer';
 import 'package:event_reminder/model/add_Event_Model.dart';
-import 'dart:async';
 import 'package:event_reminder/sqflite/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:condition/condition.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'EventListFilter/filtered_event_list.dart';
@@ -96,23 +93,6 @@ class _EventListScreenState extends State<EventListScreen> {
   refreshList() {
     setState(() {
       events = dbHelper.getEvents();
-
-      // for(int i=0;i<this.count;i++)
-      // {
-      //
-      //
-      //     var now = new DateTime.now();
-      //     var formatter = new DateFormat('yyyy-MM-dd');
-      //     String formattedDate = formatter.format(now);
-      //     String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
-      //     print("hurrrrrrrrreeeeeeee");
-      //     print(formattedDate);
-      //     print(eventDate);
-      //
-      //     if(eventDate.compareTo(formattedDate) == true){
-      //
-      //     }
-      //   }
       print("events");
       print(events);
     });
@@ -537,10 +517,6 @@ class _EventListScreenState extends State<EventListScreen> {
                 height: 350.0,
                 child: DrawerHeader(
                   decoration: BoxDecoration(
-                    // image: DecorationImage(
-                    //   image: AssetImage("assets/back2.jpg"),
-                    //   fit: BoxFit.cover,
-                    // ),
                     color: Colors.white,
                   ),
                   child: Column(
@@ -676,7 +652,6 @@ class _EventListScreenState extends State<EventListScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
   void scheduleAlarm(String eventname,String eventtype,String priority) async {
@@ -703,5 +678,4 @@ class _EventListScreenState extends State<EventListScreen> {
     await flutterLocalNotificationsPlugin.schedule(0,eventname,priority,
         scheduledNotificationDateTime, platformChannelSpecifics);
   }
-
 }
