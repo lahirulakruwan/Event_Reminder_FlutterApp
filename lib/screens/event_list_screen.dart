@@ -517,9 +517,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                     PopupMenuItem(
                                       child: Row(
                                         children: [
-                                          Icon(
-                                            Icons.favorite,
-                                            color: Colors.red,),
+                                          Icon( eventList[index].favorite == 0 ? Icons.favorite : Icons.favorite_outline, color: Colors.red,),
                                           Text(eventList[index].favorite == 0 ? " Add to favorite": " Unfavorite"),
                                         ],
                                       ),
