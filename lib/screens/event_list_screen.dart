@@ -119,6 +119,7 @@ class _EventListScreenState extends State<EventListScreen> {
     setState(() {
       timeString = formattedDateTime;
     });
+
     for(int i=0;i<this.eventList.length;i++)
     {
 
@@ -132,7 +133,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
 
       if(eventDate == formattedDate &&  nowTime == eventList[i].eventTime){
-        scheduleAlarm(eventList[i].eventName,eventList[i].eventType,eventList[i].priority);
+        scheduleAlarm(eventList[i].eventName,eventList[i].eventDate);
         break;
       }
     }
@@ -982,10 +983,12 @@ class _EventListScreenState extends State<EventListScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
-  void scheduleAlarm(String eventname,String eventtype,String priority) async {
+  void scheduleAlarm(String eventname,String eventdate) async {
+
+    var _priority;
+
     var scheduledNotificationDateTime =
         DateTime.now().add(Duration(seconds: 1));
 
@@ -993,9 +996,9 @@ class _EventListScreenState extends State<EventListScreen> {
       'alarm_notif',
       'alarm_notif',
       'Channel for Alarm notification',
-      icon: 'bell',
+      icon: 'bell_icon',
       sound: RawResourceAndroidNotificationSound('a_long_cold_sting'),
-      largeIcon: DrawableResourceAndroidBitmap('bell'),
+      largeIcon: DrawableResourceAndroidBitmap('bell_icon'),
     );
 
     var iOSPlatformChannelSpecifics = IOSNotificationDetails(
@@ -1006,8 +1009,9 @@ class _EventListScreenState extends State<EventListScreen> {
     var platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.schedule(0,eventname,priority,
+
+
+    await flutterLocalNotificationsPlugin.schedule(0,eventname,eventdate,
         scheduledNotificationDateTime, platformChannelSpecifics);
   }
-
 }
