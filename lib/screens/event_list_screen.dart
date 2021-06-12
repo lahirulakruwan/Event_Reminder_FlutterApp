@@ -545,7 +545,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   ),
                   child: Column(
                     children: [
-                      Image.asset('assets/logo.png'),
+                      Image.asset('assets/logo.gif'),
                       Container(
                         alignment: Alignment.bottomLeft,
                         child: Text(
@@ -553,7 +553,7 @@ class _EventListScreenState extends State<EventListScreen> {
                           style: new TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
-                              fontSize: 15.0),
+                              fontSize: 17.0),
                           textAlign: TextAlign.start,
                           // Text(timeString,textAlign: TextAlign.start,style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 31.0, color: Colors.white),),
                         ),
