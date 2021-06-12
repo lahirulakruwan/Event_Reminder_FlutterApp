@@ -36,8 +36,9 @@ class _EventListScreenState extends State<EventListScreen> {
   int upcomingEventsCount = 0;
   int overdueEventsCount = 0;
   int tomorrowEventsCount = 0;
-
+  String _selectedTime = 'Pick Time';
   int count = 0;
+
 
   @override
   Future<void> initState(){
@@ -123,6 +124,23 @@ class _EventListScreenState extends State<EventListScreen> {
     setState(() {
       timeString = formattedDateTime;
     });
+    for(int i=0;i<this.eventList.length;i++)
+    {
+
+
+      var now = new DateTime.now();
+
+      var formatter = new DateFormat('yyyy-MM-dd');
+      String formattedDate = formatter.format(now);
+      String nowTime =  DateFormat('kk:mm').format(now);
+      String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
+
+
+      if(eventDate == formattedDate &&  nowTime == eventList[i].eventTime){
+        scheduleAlarm(eventList[i].eventName,eventList[i].eventType,eventList[i].priority);
+        break;
+      }
+    }
   }
 
   String _formatDateTime() {
@@ -262,19 +280,6 @@ class _EventListScreenState extends State<EventListScreen> {
                           child: ListTile(
                             leading: Builder(builder: (context) {
                               return Container(
-                                // decoration: BoxDecoration(
-                                //   color: Colors.white,
-                                //   shape: BoxShape.circle,
-                                //   boxShadow: [BoxShadow(
-                                //     color: Colors.black54,
-                                //     blurRadius: 20.0, // soften the shadow
-                                //     spreadRadius: 0.5, //extend the shadow
-                                //     offset: Offset(
-                                //       5.0, // Move to right 10  horizontally
-                                //       5.0, // Move to bottom 10 Vertically
-                                //     ),
-                                //   )],
-                                // ),
                                 child: CircleAvatar(
                                   radius: 26.0,
                                   backgroundColor: Colors.lightBlue,
@@ -674,9 +679,9 @@ class _EventListScreenState extends State<EventListScreen> {
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
-  void scheduleAlarm() async {
+  void scheduleAlarm(String eventname,String eventtype,String priority) async {
     var scheduledNotificationDateTime =
-        DateTime.now().add(Duration(seconds: 10));
+        DateTime.now().add(Duration(seconds: 1));
 
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'alarm_notif',
@@ -695,7 +700,7 @@ class _EventListScreenState extends State<EventListScreen> {
     var platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics, iOS: iOSPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.schedule(0, 'Office','Hi',
+    await flutterLocalNotificationsPlugin.schedule(0,eventname,priority,
         scheduledNotificationDateTime, platformChannelSpecifics);
   }
 
