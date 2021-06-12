@@ -33,6 +33,7 @@ class Priority{
 class _AddEventPageState extends State<AddEventPage> {
 
   TextEditingController controller = TextEditingController();
+  TextEditingController controller1 = TextEditingController();
   final  _formKey  =  GlobalKey<FormState>();
   var dbHelper;
   bool isUpdating;
@@ -96,6 +97,7 @@ class _AddEventPageState extends State<AddEventPage> {
 
  clearName(){
     controller.clear();
+    controller1.clear();
  }
 
  void toastMessage(){
@@ -113,15 +115,9 @@ class _AddEventPageState extends State<AddEventPage> {
 
     if(_formKey.currentState.validate()){
       _formKey.currentState.save();
-        print(eventName);
-        print(eventDescription);
-        print( _selectedDate);
-        print( _selectedTime);
-        print(eventVal);
-        print(priorityVal);
-        var formatter = new DateFormat('yyyy-MM-dd');
+      var formatter = new DateFormat('yyyy-MM-dd');
         String formattedDate = formatter.format(DateTime.parse(_selectedDate));
-        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, formattedDate , _selectedTime, eventVal,priorityVal);
+        AddEvent  _addevent = AddEvent(null,eventName, eventDescription, formattedDate , _selectedTime, eventVal,priorityVal, 0);
         dbHelper.save(_addevent);
         toastMessage();
         clearName();
@@ -147,6 +143,7 @@ class _AddEventPageState extends State<AddEventPage> {
             )),
             SizedBox(height: 20,),
            TextFormField(
+             controller: controller,
               onSaved: (val)=>eventName = val,
               // onChanged: (String eventname){
               //   getEventName(eventname);
@@ -161,6 +158,7 @@ class _AddEventPageState extends State<AddEventPage> {
              ),
             SizedBox(height: 20,),
             TextFormField(
+              controller: controller1,
                 onSaved: (val)=>eventDescription = val,
               // onChanged: (String eventdescription){
               //   getEventdescription(eventdescription);
