@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
    <application
-        android:label="event_reminder"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Event Reminder"
+        android:icon="@mipmap/">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
