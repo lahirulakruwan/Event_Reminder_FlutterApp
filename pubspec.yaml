@@ -61,6 +61,13 @@ flutter:
     - assets/back5.png
     - assets/happy.png
     - assets/one.png
+    - assets/event.png
+    - assets/gym.png
+    - assets/logo.png
+    - assets/meeting.png
+    - assets/party.png
+    - assets/shopping.png
+    - assets/travel.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
