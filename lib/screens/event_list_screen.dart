@@ -33,17 +33,18 @@ class _EventListScreenState extends State<EventListScreen> {
   final formKey = new GlobalKey<FormState>();
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
-  int count = 0;
   int upcomingEventsCount = 0;
   int overdueEventsCount = 0;
   int tomorrowEventsCount = 0;
+
+  int count = 0;
+
   Timer _timer;
   @override
   Future<void> initState(){
     super.initState();
     dbHelper = DBHelper();
     refreshList();
-    getView();
   }
 
   favouriteEventList(){
@@ -63,6 +64,7 @@ class _EventListScreenState extends State<EventListScreen> {
     final Future<Database> dbFuture = dbHelper.initDb();
     dbFuture.then((database) {
       Future<List<AddEvent>> eventList = dbHelper.getEvents();
+
       eventList.then((eventList) {
         setState(() {
           this.eventList = eventList;
@@ -73,8 +75,36 @@ class _EventListScreenState extends State<EventListScreen> {
     });
   }
 
+  void updateEventCount() {
+    final Future<Database> dbFuture = dbHelper.initDb();
+    dbFuture.then((database) {
+      Future<int> upcomingEventCounts = dbHelper.getUpcomingEventCount();
+      Future<int> overdueEventCounts = dbHelper.getOverdueEventCount();
+      Future<int> tomorrowEventCounts = dbHelper.getTomorrowEventCount();
+
+      upcomingEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.upcomingEventsCount = counts;
+        })
+      });
+
+      overdueEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.overdueEventsCount = counts;
+        })
+      });
+
+      tomorrowEventCounts.then((counts) =>
+      {
+        setState(() {
+          this.tomorrowEventsCount = counts;
+        })
+      });
+    });
+  }
   Future<List<AddEvent>> events;
-  Future<int> upcomingEventCount;
   refreshList() {
     setState(() {
       events = dbHelper.getEvents();
@@ -96,8 +126,8 @@ class _EventListScreenState extends State<EventListScreen> {
       //   }
       print("events");
       print(events);
-      getView();
     });
+    updateEventCount();
   }
 
   void getTime() {
@@ -116,7 +146,6 @@ class _EventListScreenState extends State<EventListScreen> {
 
     AddEvent  delete = AddEvent(id,null, null, null , null, null,null);
     var type = dbHelper.deleteEvent(delete);
-    getView();
     return type;
   }
 
@@ -153,7 +182,6 @@ class _EventListScreenState extends State<EventListScreen> {
         );
       },
     );
-    getView();
   }
 
 
@@ -165,6 +193,7 @@ class _EventListScreenState extends State<EventListScreen> {
     if (eventList == null) {
       eventList = List<AddEvent>();
       updateListView();
+      updateEventCount();
     }
 
     List<int> text = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
