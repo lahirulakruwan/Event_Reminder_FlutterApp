@@ -33,7 +33,7 @@ class _EventListScreenState extends State<EventListScreen> {
   final formKey = new GlobalKey<FormState>();
   var dbHelper = DBHelper();
   List<AddEvent> eventList;
-  List<AddEvent> FaveventList;
+  List FaveventList;
   int upcomingEventsCount = 0;
   int overdueEventsCount = 0;
   int tomorrowEventsCount = 0;
@@ -105,7 +105,7 @@ class _EventListScreenState extends State<EventListScreen> {
   void updateFavListView() {
     final Future<Database> dbFuture = dbHelper.initDb();
     dbFuture.then((database) {
-      Future<List<AddEvent>> eventList = dbHelper.getFavouriteEvents();
+      Future<List> eventList = dbHelper.getFavouriteEvents();
       eventList.then((eventList) {
         setState(() {
           this.FaveventList = eventList;
