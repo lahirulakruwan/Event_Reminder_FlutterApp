@@ -122,13 +122,14 @@ class _AddEventPageState extends State<AddEventPage> {
         toastMessage();
         clearName();
 
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EventListScreen() ),
+      );
+
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => EventListScreen() ),
-    );
 
   }
 
@@ -169,7 +170,7 @@ class _AddEventPageState extends State<AddEventPage> {
               // onChanged: (String eventdescription){
               //   getEventdescription(eventdescription);
               // },
-              validator: (eventdescription)=>(eventdescription.length > 10 ? 'At maximum 10 characters':null),
+              validator: (eventdescription)=>(eventdescription.length > 20 ? 'At maximum 10 characters':null),
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12))
