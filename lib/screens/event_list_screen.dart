@@ -93,20 +93,14 @@ class _EventListScreenState extends State<EventListScreen> {
     final Future<Database> dbFuture = dbHelper.initDb();
     dbFuture.then((database) {
       Future<List<AddEvent>> eventList = dbHelper.getEvents();
+      Future<List> faveventList = dbHelper.getFavouriteEvents();
       eventList.then((eventList) {
         setState(() {
           this.eventList = eventList;
           this.count = eventList.length;
         });
       });
-    });
-  }
-
-  void updateFavListView() {
-    final Future<Database> dbFuture = dbHelper.initDb();
-    dbFuture.then((database) {
-      Future<List> eventList = dbHelper.getFavouriteEvents();
-      eventList.then((eventList) {
+      faveventList.then((eventList) {
         setState(() {
           this.FaveventList = eventList;
           this.favCount = eventList.length;
@@ -114,6 +108,19 @@ class _EventListScreenState extends State<EventListScreen> {
       });
     });
   }
+
+//  void updateFavListView() {
+//    final Future<Database> dbFuture = dbHelper.initDb();
+//    dbFuture.then((database) {
+//      Future<List> eventList = dbHelper.getFavouriteEvents();
+//      eventList.then((eventList) {
+//        setState(() {
+//          this.FaveventList = eventList;
+//          this.favCount = eventList.length;
+//        });
+//      });
+//    });
+//  }
 
   void updateEventCount() {
     final Future<Database> dbFuture = dbHelper.initDb();
@@ -248,7 +255,6 @@ class _EventListScreenState extends State<EventListScreen> {
       });
     });
     updateListView();
-    updateFavListView();
   }
 
 
@@ -261,7 +267,6 @@ class _EventListScreenState extends State<EventListScreen> {
       eventList = List<AddEvent>();
       updateListView();
       updateEventCount();
-      updateFavListView();
     }
 
     List<int> text = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
