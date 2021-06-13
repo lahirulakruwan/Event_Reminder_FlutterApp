@@ -321,7 +321,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
             ],
           ),
-          title: !isSearching ?  Text("Dashnoard"): TextField(
+          title: !isSearching ?  Text("Dashboard"): TextField(
             decoration: InputDecoration(
               icon: Icon(Icons.search,
               color: Colors.white,
