@@ -19,7 +19,7 @@ class AboutScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                  margin: EdgeInsets.only(bottom: 18),
+                  margin: EdgeInsets.only(bottom: 18, top: 20),
                   width: 200.0,
                   child: Image.asset('assets/logo.gif')),
               Text(
