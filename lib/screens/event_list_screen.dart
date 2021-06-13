@@ -1,4 +1,5 @@
 
+import 'package:event_reminder/screens/about_screen.dart';
 import 'package:event_reminder/screens/updateEventScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' as flutter_notification;
@@ -979,7 +980,14 @@ class _EventListScreenState extends State<EventListScreen> {
               Divider(),
               ListTile(
                 leading: Icon(Icons.error),
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_){
+                        return AboutScreen();
+                      }
+                  )
+                  );
+                },
                 title: Text(
                   'About',
                   style: TextStyle(color: Colors.black54, fontSize: 16.0),
