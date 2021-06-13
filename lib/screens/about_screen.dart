@@ -13,7 +13,7 @@ class AboutScreen extends StatelessWidget {
           fit: BoxFit.cover,
         ),
       ),
-      body: Scrollbar(
+      body: SingleChildScrollView(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
