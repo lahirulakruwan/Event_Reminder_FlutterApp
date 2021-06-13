@@ -37,18 +37,57 @@ class _EventListScreenState extends State<EventListScreen> {
   int upcomingEventsCount = 0;
   int overdueEventsCount = 0;
   int tomorrowEventsCount = 0;
+  var allEvents=[];
+  var items = List();
+  var favoriteEvents=[];
+  var favoriteitems = List();
   String _selectedTime = 'Pick Time';
   int count = 0;
   int favCount = 0;
-
+  TextEditingController eventSearch = TextEditingController();
+  bool isSearching = false;
 
   @override
   Future<void> initState(){
     super.initState();
     dbHelper = DBHelper();
+    dbHelper.getallEvents().then((events) {
+      setState(() {
+        allEvents = events;
+        items = allEvents;
+      });
+    });
+
+    dbHelper.getFavouriteEvents().then((fEvents) {
+      setState(() {
+        favoriteEvents = fEvents;
+        favoriteitems = favoriteEvents;
+      });
+    });
     refreshList();
   }
-
+  void eventFilter(String query) async{
+    var dummySearchList = allEvents;
+    if(query.isNotEmpty){
+      var dummyListData = List();
+      dummySearchList.forEach((items){
+        var event = AddEvent.fromMap(items);
+        if(event.eventName.toLowerCase().contains(query.toLowerCase())){
+          dummyListData.add(items);
+        }
+      });
+      setState(() {
+        items = [];
+        items.addAll(dummyListData);
+      });
+      return;
+    }else{
+      setState(() {
+        items = [];
+        items = allEvents;
+      });
+    }
+  }
 
   void updateListView() {
     final Future<Database> dbFuture = dbHelper.initDb();
@@ -196,6 +235,18 @@ class _EventListScreenState extends State<EventListScreen> {
         backgroundColor: Colors.lightBlue,
         textColor: Colors.white
     );
+    dbHelper.getallEvents().then((events) {
+      setState(() {
+        allEvents = events;
+        items = allEvents;
+      });
+    });
+    dbHelper.getFavouriteEvents().then((fEvents) {
+      setState(() {
+        favoriteEvents = fEvents;
+        favoriteitems = favoriteEvents;
+      });
+    });
     updateListView();
     updateFavListView();
   }
@@ -265,22 +316,52 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
             ],
           ),
-          title: Text('Dashboard'),
-          actions: [
-            IconButton(icon: Icon(Icons.search), onPressed: () {}),
+          title: !isSearching ?  Text("Dashnoard"): TextField(
+            decoration: InputDecoration(
+              icon: Icon(Icons.search,
+              color: Colors.white,
+              ),
+
+              hintText: "Search Event Here...",
+              hintStyle: TextStyle(color: Colors.white)
+            ),
+            onChanged: (value){
+              setState(() {
+                eventFilter(value);
+              });
+            },
+          ),
+          actions:<Widget> [
+            isSearching ?
+            IconButton(icon: Icon(Icons.cancel),
+                onPressed: () {
+
+
+                    setState(() {
+                      eventFilter("");
+                        this.isSearching = false;
+              });
+            }):IconButton(icon: Icon(Icons.search),
+                onPressed: () {
+                  setState(() {
+                    this.isSearching =true;
+                  });
+                }),
+
+
           ],
         ),
-        body: TabBarView(
+        body:
+        TabBarView(
           children: [
+
+
             Container(
-              child: FutureBuilder(
-                future: dbHelper.getEvents(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<AddEvent>> snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: count,
-                      itemBuilder: (BuildContext context, int index) {
+
+              child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context,index) {
+                        AddEvent event = AddEvent.fromMap(items[index]);
                         return Card(
                           shape: RoundedRectangleBorder(
                             side: BorderSide(color: Colors.blue, width: 1.0),
@@ -296,27 +377,23 @@ class _EventListScreenState extends State<EventListScreen> {
                                   backgroundColor: Colors.lightBlue,
                                   child: Builder(
                                     builder: (context) {
-                                      if (this.eventList[index].eventType ==
+                                      if (event.eventType ==
                                           'Travel')
                                         return Image.asset('assets/travel.png');
-                                      else if (this
-                                              .eventList[index]
+                                      else if (event
                                               .eventType ==
                                           'Shopping')
                                         return Image.asset(
                                             'assets/shopping.png');
-                                      else if (this
-                                              .eventList[index]
+                                      else if (event
                                               .eventType ==
                                           'Gym')
                                         return Image.asset('assets/gym.png');
-                                      else if (this
-                                              .eventList[index]
+                                      else if (event
                                               .eventType ==
                                           'Party')
                                         return Image.asset('assets/party.png');
-                                      else if (this
-                                              .eventList[index]
+                                      else if (event
                                               .eventType ==
                                           'Meeting')
                                         return Image.asset(
@@ -328,7 +405,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                 ),
                               );
                             }),
-                            title: Text(this.eventList[index].eventName,
+                            title: Text(event.eventName,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black)),
@@ -343,8 +420,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                           bottom: 5,
                                         ),
                                         child: Text(
-                                            this
-                                                .eventList[index]
+                                            event
                                                 .eventDescription,
                                             style: TextStyle(
                                                 color: Colors.black54)),
@@ -358,8 +434,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                         margin: EdgeInsets.only(right: 0),
                                         child: Builder(
                                           builder: (context) {
-                                            if (this
-                                                    .eventList[index]
+                                            if (event
                                                     .priority ==
                                                 'High')
                                               return Row(
@@ -427,9 +502,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                         child: Row(
                                           children: [
                                             Icon(Icons.date_range),
-                                            Text(
-                                                    this
-                                                        .eventList[index]
+                                            Text(event
                                                         .eventDate,
                                                 style: TextStyle(
                                                     color: Colors.black54)),
@@ -441,9 +514,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                         child: Row(
                                           children: [
                                             Icon(Icons.access_time),
-                                            Text(
-                                                  this
-                                                      .eventList[index]
+                                            Text(event
                                                       .eventTime,
                                               style: TextStyle(
                                                   color: Colors.black54),
@@ -456,7 +527,7 @@ class _EventListScreenState extends State<EventListScreen> {
                                         child: Row(
                                           children: [
                                             Text("   "),
-                                            Icon(this.eventList[index].favorite.toString() == "1" ? Icons.favorite:Icons.favorite_outline_outlined, color: Colors.red),
+                                            Icon(event.favorite.toString() == "1" ? Icons.favorite:Icons.favorite_outline_outlined, color: Colors.red),
 
                                           ],
                                         ),
@@ -479,15 +550,16 @@ class _EventListScreenState extends State<EventListScreen> {
                                           builder: (BuildContext context) {
                                             return Dialog(
 
-                                                child: updateEvent(id:eventList[index].id, name:eventList[index].eventName, description:eventList[index].eventDescription,date:eventList[index].eventDate,time:eventList[index].eventTime,priority:eventList[index].priority,type:eventList[index].eventType),
+                                                child: updateEvent(id:event.id, name:event.eventName, description:event.eventDescription,date:event.eventDate,time:event.eventTime,priority:event.priority,type:event.eventType),
                                                 shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                     BorderRadius.all(Radius.circular(12))));
                                           });
                                     }else if(value == 0){
-                                      toastMessageForDelete(eventList[index].id);
+                                      toastMessageForDelete(event.id);
                                     }else{
-                                      toastMessageForUpdate(eventList[index].id, eventList[index].favorite);
+
+                                      toastMessageForUpdate(event.id, event.favorite);
                                     }
                                   },
                                   itemBuilder: (context)=>[
@@ -517,8 +589,8 @@ class _EventListScreenState extends State<EventListScreen> {
                                     PopupMenuItem(
                                       child: Row(
                                         children: [
-                                          Icon( eventList[index].favorite == 0 ? Icons.favorite : Icons.favorite_outline, color: Colors.red,),
-                                          Text(eventList[index].favorite == 0 ? " Add to favorite": " Unfavorite"),
+                                          Icon( event.favorite == 0 ? Icons.favorite : Icons.favorite_outline, color: Colors.red,),
+                                          Text(event.favorite == 0 ? " Add to favorite": " Unfavorite"),
                                         ],
                                       ),
 
@@ -535,283 +607,265 @@ class _EventListScreenState extends State<EventListScreen> {
                           ),
                         );
                       },
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+                    )
+
+
+
             ),
             Container(
-              child: FutureBuilder(
-                future: dbHelper.getFavouriteEvents(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<AddEvent>> snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: favCount,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.blue, width: 1.0),
-                            borderRadius: BorderRadius.circular(15.0),
+              child: ListView.builder(
+                itemCount: favoriteitems.length,
+                itemBuilder: (context,index) {
+                  AddEvent FavouriteEvent = AddEvent.fromMap(favoriteitems[index]);
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.blue, width: 1.0),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  color: Colors.white,
+                  elevation: 2.0,
+                  child: ListTile(
+                    leading: Builder(builder: (context) {
+                      return Container(
+                        // decoration: BoxDecoration(
+                        //   color: Colors.white,
+                        //   shape: BoxShape.circle,
+                        //   boxShadow: [BoxShadow(
+                        //     color: Colors.black54,
+                        //     blurRadius: 20.0, // soften the shadow
+                        //     spreadRadius: 0.5, //extend the shadow
+                        //     offset: Offset(
+                        //       5.0, // Move to right 10  horizontally
+                        //       5.0, // Move to bottom 10 Vertically
+                        //     ),
+                        //   )],
+                        // ),
+                        child: CircleAvatar(
+                          radius: 26.0,
+                          backgroundColor: Colors.lightBlue,
+                          child: Builder(
+                            builder: (context) {
+                              if (FavouriteEvent.eventType ==
+                                  'Travel')
+                                return Image.asset('assets/travel.png');
+                              else if (FavouriteEvent
+                                  .eventType ==
+                                  'Shopping')
+                                return Image.asset(
+                                    'assets/shopping.png');
+                              else if (FavouriteEvent
+                                  .eventType ==
+                                  'Gym')
+                                return Image.asset('assets/gym.png');
+                              else if (FavouriteEvent
+                                  .eventType ==
+                                  'Party')
+                                return Image.asset('assets/party.png');
+                              else if (FavouriteEvent
+                                  .eventType ==
+                                  'Meeting')
+                                return Image.asset(
+                                    'assets/meeting.png');
+                              else
+                                return Image.asset('assets/event.png');
+                            },
                           ),
-                          color: Colors.white,
-                          elevation: 2.0,
-                          child: ListTile(
-                            leading: Builder(builder: (context) {
-                              return Container(
-                                // decoration: BoxDecoration(
-                                //   color: Colors.white,
-                                //   shape: BoxShape.circle,
-                                //   boxShadow: [BoxShadow(
-                                //     color: Colors.black54,
-                                //     blurRadius: 20.0, // soften the shadow
-                                //     spreadRadius: 0.5, //extend the shadow
-                                //     offset: Offset(
-                                //       5.0, // Move to right 10  horizontally
-                                //       5.0, // Move to bottom 10 Vertically
-                                //     ),
-                                //   )],
-                                // ),
-                                child: CircleAvatar(
-                                  radius: 26.0,
-                                  backgroundColor: Colors.lightBlue,
-                                  child: Builder(
-                                    builder: (context) {
-                                      if (this.FaveventList[index].eventType ==
-                                          'Travel')
-                                        return Image.asset('assets/travel.png');
-                                      else if (this
-                                          .FaveventList[index]
-                                          .eventType ==
-                                          'Shopping')
-                                        return Image.asset(
-                                            'assets/shopping.png');
-                                      else if (this
-                                          .FaveventList[index]
-                                          .eventType ==
-                                          'Gym')
-                                        return Image.asset('assets/gym.png');
-                                      else if (this
-                                          .FaveventList[index]
-                                          .eventType ==
-                                          'Party')
-                                        return Image.asset('assets/party.png');
-                                      else if (this
-                                          .FaveventList[index]
-                                          .eventType ==
-                                          'Meeting')
-                                        return Image.asset(
-                                            'assets/meeting.png');
-                                      else
-                                        return Image.asset('assets/event.png');
-                                    },
-                                  ),
+                        ),
+                      );
+                    }),
+                    title: Text(FavouriteEvent.eventName,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black)),
+                    subtitle: Builder(builder: (context) {
+                      return Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: new EdgeInsets.only(
+                                  top: 3,
+                                  bottom: 5,
                                 ),
-                              );
-                            }),
-                            title: Text(this.FaveventList[index].eventName,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black)),
-                            subtitle: Builder(builder: (context) {
-                              return Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: new EdgeInsets.only(
-                                          top: 3,
-                                          bottom: 5,
-                                        ),
-                                        child: Text(
-                                            this
-                                                .FaveventList[index]
-                                                .eventDescription,
-                                            style: TextStyle(
-                                                color: Colors.black54)),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        margin: EdgeInsets.only(right: 4),
-                                        child: Builder(
-                                          builder: (context) {
-                                            if (this
-                                                .FaveventList[index]
-                                                .priority ==
-                                                'High')
-                                              return Row(
-                                                children: [
-                                                  Container(
-                                                    padding:
-                                                    const EdgeInsets.all(
-                                                        4.0),
-                                                    decoration: BoxDecoration(
-                                                        color: Colors.red,
-                                                        borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(20)
-                                                        )
-                                                    ),
-                                                    width: 20,
-                                                    height: 20,
-                                                    child: Center(
-                                                      child: Text(
-                                                        "",
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                            FontWeight
-                                                                .bold),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            else
-                                              return Row(
-                                                children: [
-                                                  Container(
-                                                    padding:
-                                                    const EdgeInsets.all(
-                                                        4.0),
-                                                    decoration: BoxDecoration(
-                                                        color: Colors.blue,
-                                                        borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(20)
-                                                        )
-                                                    ),
-                                                    width: 20,
-                                                    height: 20,
-                                                    child: Center(
-                                                      child: Text(
-                                                        "",
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                            FontWeight
-                                                                .bold),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                          },
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(left: 3),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.date_range),
-                                            Text(this.FaveventList[index].eventDate,
-                                                style: TextStyle(
-                                                    color: Colors.black54)),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(left: 3),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.access_time),
-                                            Text(
-                                                  this
-                                                      .FaveventList[index]
-                                                      .eventTime,
-                                              style: TextStyle(
-                                                  color: Colors.black54),
+                                child: Text(
+                                    FavouriteEvent
+                                        .eventDescription,
+                                    style: TextStyle(
+                                        color: Colors.black54)),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 4),
+                                child: Builder(
+                                  builder: (context) {
+                                    if (FavouriteEvent
+                                        .priority ==
+                                        'High')
+                                      return Row(
+                                        children: [
+                                          Container(
+                                            padding:
+                                            const EdgeInsets.all(
+                                                4.0),
+                                            decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                borderRadius:
+                                                BorderRadius.all(
+                                                    Radius.circular(20)
+                                                )
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(left: 0),
-                                        child: Row(
-                                          children: [
-                                            Text("   "),
-                                            Icon(this.FaveventList[index].favorite.toString() == "1" ? Icons.favorite:Icons.favorite_outline_outlined, color: Colors.red),
-
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                ],
-                              );
-                            }),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                PopupMenuButton(
-
-                                  onSelected: (value) {
-                                    if (value == 1) {
-                                      showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return Dialog(
-
-                                                child: updateEvent(id:FaveventList[index].id, name:FaveventList[index].eventName, description:FaveventList[index].eventDescription,date:FaveventList[index].eventDate,time:FaveventList[index].eventTime,priority:FaveventList[index].priority,type:FaveventList[index].eventType),
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    BorderRadius.all(Radius.circular(12))));
-                                          });
-                                    }else if(value == 0){
-                                      toastMessageForDelete(FaveventList[index].id);
-                                    }else{
-                                      toastMessageForUpdate(FaveventList[index].id, FaveventList[index].favorite);
-                                    }
+                                            width: 20,
+                                            height: 20,
+                                            child: Center(
+                                              child: Text(
+                                                "",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                    FontWeight
+                                                        .bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    else
+                                      return Row(
+                                        children: [
+                                          Container(
+                                            padding:
+                                            const EdgeInsets.all(
+                                                4.0),
+                                            decoration: BoxDecoration(
+                                                color: Colors.blue,
+                                                borderRadius:
+                                                BorderRadius.all(
+                                                    Radius.circular(20)
+                                                )
+                                            ),
+                                            width: 20,
+                                            height: 20,
+                                            child: Center(
+                                              child: Text(
+                                                "",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                    FontWeight
+                                                        .bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
                                   },
-                                  itemBuilder: (context)=>[
-
-                                    PopupMenuItem(
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.update,color: Colors.blue,),
-                                          Text("Update Event")
-                                        ],
-                                      ),
-                                      value: 1,
-                                    ),
-                                    PopupMenuItem(
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.delete,
-                                            color: Colors.red,),
-                                          Text(" Delete Event"),
-                                        ],
-                                      ),
-
-                                      value: 0,
-                                    )
-                                  ],
-                                  child: Icon(
-                                    Icons.more_vert,
-                                    color: Colors.grey,
-                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 3),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.date_range),
+                                    Text(FavouriteEvent.eventDate,
+                                        style: TextStyle(
+                                            color: Colors.black54)),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 3),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.access_time),
+                                    Text(
+                                      FavouriteEvent
+                                          .eventTime,
+                                      style: TextStyle(
+                                          color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 0),
+                                child: Row(
+                                  children: [
+                                    Text("   "),
+                                    Icon(FavouriteEvent.favorite.toString() == "1" ? Icons.favorite:Icons.favorite_outline_outlined, color: Colors.red),
+
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+
+                        ],
+                      );
+                    }),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        PopupMenuButton(
+
+                          onSelected: (value) {
+                            if (value == 1) {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Dialog(
+
+                                        child: updateEvent(id:FavouriteEvent.id, name:FavouriteEvent.eventName, description:FavouriteEvent.eventDescription,date:FavouriteEvent.eventDate,time:FavouriteEvent.eventTime,priority:FavouriteEvent.priority,type:FavouriteEvent.eventType),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.all(Radius.circular(12))));
+                                  });
+                            }else if(value == 0){
+                              toastMessageForDelete(FavouriteEvent.id);
+                            }else{
+                              toastMessageForUpdate(FavouriteEvent.id, FavouriteEvent.favorite);
+                            }
+                          },
+                          itemBuilder: (context)=>[
+
+                            PopupMenuItem(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.update,color: Colors.blue,),
+                                  Text("Update Event")
+                                ],
+                              ),
+                              value: 1,
+                            ),
+                            PopupMenuItem(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.red,),
+                                  Text(" Delete Event"),
+                                ],
+                              ),
+
+                              value: 0,
+                            )
+                          ],
+                          child: Icon(
+                            Icons.more_vert,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
+            )
           ],
         ),
         drawer: Drawer(

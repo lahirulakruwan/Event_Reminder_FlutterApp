@@ -63,6 +63,20 @@ class DBHelper {
     return events;
   }
 
+  Future<List> getallEvents() async {
+    var dbClient = await db;
+    // List<Map> maps = await dbClient.query(TABLE, columns: [ID, EVENTNAME, EVENTDESCRIPTION, EVENTDATE, EVENTTIME, EVENTTYPE, PRIORITY]);
+    // List<Map> maps = await dbClient.rawQuery("SELECT * FROM $TABLE");
+    //
+    // List<AddEvent> events = [];
+    // if (maps.length > 0) {
+    //   for (int i = 0; i < maps.length; i++) {
+    //     events.add(AddEvent.fromMap(maps[i]));
+    //   }
+    // }
+    return dbClient.query(TABLE);
+  }
+
   Future<bool> deleteEvent(AddEvent event) async {
     var dbClient = await db;
 
@@ -185,18 +199,18 @@ class DBHelper {
     return event;
   }
 
-  Future<List<AddEvent>> getFavouriteEvents() async {
+  Future<List> getFavouriteEvents() async {
     var dbClient = await db;
     // List<Map> maps = await dbClient.query(TABLE, columns: [ID, EVENTNAME, EVENTDESCRIPTION, EVENTDATE, EVENTTIME, EVENTTYPE, PRIORITY]);
-    List<Map> maps =
-        await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $FAVOURITE = 1");
+    // List<Map> maps =
+    return dbClient.rawQuery("SELECT * FROM $TABLE WHERE $FAVOURITE = 1");
 
-    List<AddEvent> events = [];
-    if (maps.length > 0) {
-      for (int i = 0; i < maps.length; i++) {
-        events.add(AddEvent.fromMap(maps[i]));
-      }
-    }
-    return events;
+    // List<AddEvent> events = [];
+    // if (maps.length > 0) {
+    //   for (int i = 0; i < maps.length; i++) {
+    //     events.add(AddEvent.fromMap(maps[i]));
+    //   }
+    // }
+    // return events;
   }
 }
