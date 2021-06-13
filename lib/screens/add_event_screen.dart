@@ -124,6 +124,12 @@ class _AddEventPageState extends State<AddEventPage> {
 
     }
 
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => EventListScreen() ),
+    );
+
   }
 
   @override
@@ -163,7 +169,7 @@ class _AddEventPageState extends State<AddEventPage> {
               // onChanged: (String eventdescription){
               //   getEventdescription(eventdescription);
               // },
-              validator: (eventdescription)=>(eventdescription.length < 10 ? 'At least 10 characters required':null),
+              validator: (eventdescription)=>(eventdescription.length > 10 ? 'At maximum 10 characters':null),
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12))
