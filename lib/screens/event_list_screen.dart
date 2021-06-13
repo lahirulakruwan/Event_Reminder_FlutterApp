@@ -175,12 +175,14 @@ class _EventListScreenState extends State<EventListScreen> {
 
       var formatter = new DateFormat('yyyy-MM-dd');
       String formattedDate = formatter.format(now);
-      String nowTime =  DateFormat('kk:mm').format(now);
+      String nowTime =  DateFormat().add_jm().format(now.add(Duration(minutes: 10)));
       String eventDate = formatter.format(DateTime.parse(eventList[i].eventDate));
-
+      // print("eve"+eventList[i].eventTime);
+      //
+      // print("now"+nowTime);
 
       if(eventDate == formattedDate &&  nowTime == eventList[i].eventTime){
-        scheduleAlarm(eventList[i].eventName,eventList[i].eventDate);
+        scheduleAlarm(eventList[i].eventName,eventList[i].eventTime);
         break;
       }
     }
@@ -1056,7 +1058,7 @@ class _EventListScreenState extends State<EventListScreen> {
       ),
     );
   }
-  void scheduleAlarm(String eventname,String eventdate) async {
+  void scheduleAlarm(String eventname,String eventtime) async {
 
     var _priority;
 
@@ -1082,7 +1084,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
 
 
-    await flutterLocalNotificationsPlugin.schedule(0,eventname,eventdate,
+    await flutterLocalNotificationsPlugin.schedule(0,eventname,eventtime,
         scheduledNotificationDateTime, platformChannelSpecifics);
   }
 }
