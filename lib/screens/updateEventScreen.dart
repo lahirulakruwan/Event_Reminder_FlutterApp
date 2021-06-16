@@ -12,10 +12,11 @@ import 'event_list_screen.dart';
 class updateEvent extends StatefulWidget {
 //
 final String name, description, date,time,priority,type;
+bool favorite;
  final int id;
 
 //
-   updateEvent({Key key, this.id,this.name,this.description,this.date,this.time,this.priority,this.type}): super (key:key);
+   updateEvent({Key key, this.id,this.name,this.description,this.date,this.time,this.priority,this.type, this.favorite}): super (key:key);
   //
   // updateEvent(int id,String name,String description,String date,String time,String priority,String type){
   //   this.id=id;
@@ -84,7 +85,6 @@ class _UpdateEventPageState extends State<updateEvent> {
       eventList.then((eventList) {
         setState(() {
           this.eventList = eventList;
-          print(this.eventList);
           this.count = eventList.length;
         });
       });
@@ -140,7 +140,7 @@ class _UpdateEventPageState extends State<updateEvent> {
 
   String priorityVal;
   Priority defaultPriorityVal;
-
+  bool favorite;
   Future _pickDate() async {
     DateTime datepick = await showDatePicker(
         context: context,
@@ -173,13 +173,7 @@ class _UpdateEventPageState extends State<updateEvent> {
 
     if(_formKey.currentState.validate()){
       _formKey.currentState.save();
-      print(eventName);
-      print(eventDescription);
-      print( _selectedDate);
-      print( _selectedTime);
-      print(eventVal);
-      print(priorityVal);
-      AddEvent  _addevent = AddEvent(widget.id,eventName, eventDescription, _selectedDate , _selectedTime, eventVal,priorityVal);
+      AddEvent  _addevent = AddEvent(widget.id,eventName, eventDescription, _selectedDate , _selectedTime, eventVal,priorityVal, null);
       dbHelper.Update(_addevent);
       toastMessage();
       clearName();
@@ -334,23 +328,25 @@ class _UpdateEventPageState extends State<updateEvent> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
+
                     FlatButton(
-                      color: Colors.lightBlue,
-                      onPressed: Updateclick,
-                      child: Text('Update'),
-                    ),
-                    FlatButton(
-                      color: Colors.lightBlue,
+                      color: Colors.red,
                       child: Text('CANCEL'),
                       onPressed: (){
                         Navigator.push(
-                          context,
+                          context,/**/
                           MaterialPageRoute(
                               builder: (context) => EventListScreen() ),
                         );
                       },
 
                     ),
+                    FlatButton(
+                      color: Colors.lightBlue,
+                      onPressed: Updateclick,
+                      child: Text('Update'),
+                    ),
+
                   ],
                 ),
               ],
