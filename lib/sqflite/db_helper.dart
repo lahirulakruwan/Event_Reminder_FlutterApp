@@ -109,7 +109,7 @@ class DBHelper {
   Future<List<AddEvent>> getEventsUpComingList() async {
     var dbClient = await db;
     List<Map> maps =
-        await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE ");
+    await dbClient.rawQuery("SELECT * FROM $TABLE WHERE $EVENTDATE ");
     List<AddEvent> events = [];
     if (maps.length > 0) {
       for (int i = 0; i < maps.length; i++) {
@@ -134,7 +134,7 @@ class DBHelper {
       count = maps.length;
     } else if (eventType == "upcoming") {
       maps = await dbClient.rawQuery(
-          "SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$today' AND '2030-06-10 00:00:00.000'");
+          "SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$yesterday' AND '2030-06-10 00:00:00.000'");
       count = maps.length;
     } else if (eventType == "overdue") {
       maps = await dbClient.rawQuery(
@@ -156,9 +156,11 @@ class DBHelper {
     int count;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+
     var dbClient = await db;
     List<Map> maps = await dbClient.rawQuery(
-        "SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$today' AND '2030-06-10 00:00:00.000'");
+        "SELECT * FROM $TABLE WHERE $EVENTDATE BETWEEN '$yesterday' AND '2030-06-10 00:00:00.000'");
     count = maps.length;
     return count;
   }
